@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cấu hình môi trường
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# VSCode
+.vscode/
+
+# Docker
+*.log
+docker-compose*.yml
+
+# Mac/Linux/Windows hệ thống
+.DS_Store
+Thumbs.db
+
+# Python egg
+*.egg-info/
+.eggs/
+
+# Test coverage
+htmlcov/
+.coverage
+.tox/
+
+# Database tạm
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Khác
+*.bak
+*.swp 
