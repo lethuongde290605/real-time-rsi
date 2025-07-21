@@ -1,16 +1,14 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from rsi.fetcher import update_price_history, price_cache
 from rsi.calculator import compute_rsi
 
 bp = Blueprint("rsi", __name__)
 
 @bp.route("/rsi")
-def get_rsi():
-    tokens = request.args.get("tokens")
-    interval = int(request.args.get("interval", 60))
 
-    if not tokens:
-        return jsonify({"error": "Missing tokens param"}), 400
+def get_rsi():
+    tokens = request.args.get("tokens")           # ví dụ: "SOL/USDC"
+    interval = int(request.args.get("interval"))  # ví dụ: 60
 
     results = {}
     for pair in tokens.split(","):
