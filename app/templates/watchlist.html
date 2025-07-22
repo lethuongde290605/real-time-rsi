@@ -2,35 +2,27 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/watchlist.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 <div class="container mt-5">
     <div class="watchlist-header">
-        <h2 class="watchlist-title">⭐ Your Watchlist</h2>
+        <h2 class="watchlist-title">⭐ Danh sách token theo dõi</h2>
         <a href="/search" class="search-bar-link">
             <i class="fas fa-search"></i>
-            <span>Search for a new pair (e.g. BTC/USDT)</span>
+            <span>Tìm kiếm cặp token</span>
         </a>
     </div>
 
-    <table class="table table-hover watchlist-table mt-4">
-        <thead>
-            <tr>
-                <th>Pair</th>
-                <th>Price</th>
-                <th>Change (24h)</th>
-                <th class="text-end">Action</th>
-            </tr>
-        </thead>
-        <tbody id="watchlist-body">
-            </tbody>
-    </table>
+    <div id="watchlist-container" class="mt-4">
+        </div>
 
-    <div class="add-pair-container mt-3">
-        <a href="/search" class="btn btn-primary-custom">
-            <i class="fas fa-plus-circle"></i> Add New Pair
-        </a>
+    <div class="add-pair-container mt-4">
+        <button id="add-pair-btn" class="btn btn-primary-custom">
+            <i class="fas fa-plus-circle"></i> Thêm cặp toke mới
+        </button>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ url_for('static', filename='js/watchlist.js') }}"></script>
 {% endblock %}

@@ -19,18 +19,11 @@ function updateMarketInfo() {
     const priceChange = (Math.random() - 0.5) * 2000;
     const currentPrice = lastPrice + priceChange;
     const priceChangePercent = (priceChange / lastPrice) * 100;
-    const high24h = lastPrice + 1500;
-    const low24h = lastPrice - 1800;
+    const high24h = lastPrice + (Math.random() * 1500);
+    const low24h = lastPrice - (Math.random() * 1800);
     const volumeToken = 2500 + Math.random() * 500;
     const volumeQuote = volumeToken * currentPrice;
     // --- KẾT THÚC VÙNG GIẢ LẬP DỮ LIỆU ---
-
-    // TODO: Thay thế vùng giả lập ở trên bằng lệnh fetch API thực tế, ví dụ:
-    // fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${tokenA}${tokenB}`)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //      // Cập nhật các biến với dữ liệu từ `data`, ví dụ: currentPrice = parseFloat(data.lastPrice);
-    //   });
 
     // Cập nhật DOM
     const priceDisplayEl = document.getElementById('price-display');
@@ -38,15 +31,11 @@ function updateMarketInfo() {
     
     priceDisplayEl.textContent = `$${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     
-    const changeText = `${priceChange.toFixed(2)} (${priceChangePercent.toFixed(2)}%)`;
-    priceChangeEl.textContent = priceChange >= 0 ? `+${changeText}` : changeText;
+    const changeText = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)} (${priceChangePercent.toFixed(2)}%)`;
+    priceChangeEl.textContent = changeText;
 
     priceChangeEl.classList.remove('positive', 'negative');
-    if (priceChange >= 0) {
-        priceChangeEl.classList.add('positive');
-    } else {
-        priceChangeEl.classList.add('negative');
-    }
+    priceChangeEl.classList.add(priceChange >= 0 ? 'positive' : 'negative');
     
     document.getElementById('high-24h').textContent = `$${high24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('low-24h').textContent = `$${low24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -59,8 +48,10 @@ function updateMarketInfo() {
  * Tạo hoặc tải lại biểu đồ TradingView
  */
 function createTradingViewWidget(theme) {
-    chartContainer.innerHTML = `<div class="chart-loader d-flex flex-column justify-content-center align-items-center h-100"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div><p class="mt-3">Đang tải dữ liệu biểu đồ...</p></div>`;
+    // Hiển thị loader trong khi chờ biểu đồ tải
+    chartContainer.innerHTML = `<div class="chart-loader d-flex flex-column justify-content-center align-items-center h-100"><div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div><p class="mt-3">Loading Chart Data...</p></div>`;
     
+    // Thêm một độ trễ nhỏ để đảm bảo DOM được cập nhật trước khi widget được tạo
     setTimeout(() => {
         new TradingView.widget({
             "autosize": true,
@@ -70,13 +61,18 @@ function createTradingViewWidget(theme) {
             "theme": theme,
             "style": "1",
             "locale": "en",
-            "toolbar_bg": theme === 'light' ? "#ffffff" : "#161b22",
+            "toolbar_bg": theme === 'light' ? "#ffffff" : "#1e222d",
             "enable_publishing": false,
             "allow_symbol_change": true,
             "container_id": "tradingview_chart_container",
             "studies": [ "RSI@tv-basicstudies", "MACD@tv-basicstudies" ],
+            "withdateranges": true,
+            "hide_side_toolbar": false,
+            "details": true,
+            "hotlist": true,
+            "calendar": true,
         });
-    }, 50);
+    }, 100);
 }
 
 /**
@@ -93,15 +89,16 @@ function applyTheme(isDark) {
 }
 
 // --- Khởi chạy khi tải trang ---
-themeSwitch.addEventListener('change', (event) => applyTheme(event.target.checked));
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Cập nhật thông tin thị trường
+    // Gán sự kiện cho công tắc theme
+    themeSwitch.addEventListener('change', (event) => applyTheme(event.target.checked));
+
+    // Cập nhật thông tin thị trường ngay lập tức
     updateMarketInfo(); 
     // Lặp lại việc cập nhật sau mỗi 5 giây để giả lập real-time
     setInterval(updateMarketInfo, 5000);
 
-    // Thiết lập theme ban đầu
+    // Thiết lập theme ban đầu dựa trên lựa chọn đã lưu hoặc cài đặt của hệ thống
     const savedTheme = localStorage.getItem('isDarkTheme');
     let isDark = savedTheme !== null ? (savedTheme === 'true') : window.matchMedia('(prefers-color-scheme: dark)').matches;
     applyTheme(isDark);

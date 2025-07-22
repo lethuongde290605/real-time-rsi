@@ -1,11 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const watchlistBody = document.getElementById('watchlist-body');
+    const watchlistContainer = document.getElementById('watchlist-container');
+    const addPairBtn = document.getElementById('add-pair-btn');
 
-    // Lấy watchlist từ localStorage hoặc tạo mảng rỗng nếu chưa có
+    // Cấu hình toast thông báo
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        },
+        customClass: {
+            popup: 'colored-toast'
+        }
+    });
+
+    // Lấy watchlist từ localStorage hoặc tạo mảng rỗng
     const getWatchlist = () => {
         const watchlist = localStorage.getItem('watchlist');
-        // Trả về một vài cặp token mẫu nếu watchlist rỗng để demo
-        return watchlist ? JSON.parse(watchlist) : ['BTC/USDT', 'ETH/USDT', 'SOL/BNB'];
+        // Mặc định là mảng rỗng cho người dùng mới
+        return watchlist ? JSON.parse(watchlist) : [];
     };
 
     // Lưu watchlist vào localStorage
@@ -16,61 +33,117 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hàm render lại danh sách trên giao diện
     const renderWatchlist = () => {
         const watchlist = getWatchlist();
-        watchlistBody.innerHTML = ''; // Xóa danh sách cũ
+        watchlistContainer.innerHTML = ''; 
 
         if (watchlist.length === 0) {
-            watchlistBody.innerHTML = '<tr><td colspan="4" class="text-center empty-watchlist-text">Your watchlist is empty. Use the search bar to add new pairs.</td></tr>';
+            watchlistContainer.innerHTML = '<div class="empty-watchlist-text">Danh sách theo dõi của bạn đang trống. Hãy thêm một cặp token mới!</div>';
             return;
         }
 
         watchlist.forEach((pair, index) => {
             const [tokenA, tokenB] = pair.split('/');
-            const row = document.createElement('tr');
-
-            // Cột tên cặp token (là một link)
-            const pairCell = document.createElement('td');
-            const link = document.createElement('a');
-            link.textContent = pair;
-            link.href = `/chart/${tokenA}/${tokenB}`; // Điều hướng đến trang chart
-            pairCell.appendChild(link);
-
-            // Cột giá và thay đổi (dữ liệu giả lập để minh họa)
-            const priceCell = document.createElement('td');
-            priceCell.textContent = `$${(Math.random() * 70000).toFixed(2)}`;
-
-            const changeCell = document.createElement('td');
-            const changeValue = (Math.random() - 0.5) * 10;
-            changeCell.textContent = `${changeValue.toFixed(2)}%`;
-            changeCell.className = changeValue >= 0 ? 'positive' : 'negative';
-            
-            // Cột nút xóa
-            const actionCell = document.createElement('td');
-            actionCell.className = 'text-end';
+            const item = document.createElement('div');
+            item.className = 'watchlist-item';
+            const pairLink = document.createElement('a');
+            pairLink.className = 'pair-details';
+            pairLink.href = `/chart/${tokenA}/${tokenB}`;
+            const pairName = document.createElement('h5');
+            pairName.textContent = pair;
+            const pairInfo = document.createElement('p');
+            pairInfo.textContent = 'Xem biểu đồ và phân tích thời gian thực.';
+            pairLink.appendChild(pairName);
+            pairLink.appendChild(pairInfo);
             const deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            deleteBtn.className = 'btn btn-sm btn-danger-custom';
-            deleteBtn.onclick = () => {
-                removePair(index);
+            deleteBtn.className = 'btn-delete';
+            deleteBtn.onclick = (e) => {
+                e.preventDefault();
+                removePair(index, pair); // Truyền thêm `pair` để hiển thị trong popup
             };
-            actionCell.appendChild(deleteBtn);
-
-            row.appendChild(pairCell);
-            row.appendChild(priceCell);
-            row.appendChild(changeCell);
-            row.appendChild(actionCell);
-            watchlistBody.appendChild(row);
+            item.appendChild(pairLink);
+            item.appendChild(deleteBtn);
+            watchlistContainer.appendChild(item);
         });
     };
     
-    // Hàm xóa một cặp khỏi danh sách
-    const removePair = (index) => {
-        if (confirm('Are you sure you want to remove this pair?')) {
-            const watchlist = getWatchlist();
-            watchlist.splice(index, 1); // Xóa phần tử tại vị trí index
-            saveWatchlist(watchlist);
-            renderWatchlist(); // Cập nhật lại giao diện
-        }
+    // Hàm xóa một cặp khỏi danh sách với popup xác nhận
+    const removePair = (index, pair) => {
+        Swal.fire({
+            title: `Xóa cặp ${pair}?`,
+            text: "Bạn sẽ không thể hoàn tác hành động này!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#357ce1',
+            cancelButtonColor: '#f6465d',
+            confirmButtonText: 'Đồng ý, xóa nó!',
+            cancelButtonText: 'Hủy bỏ',
+            background: 'var(--dex-panel-bg)',
+            color: 'var(--dex-text-primary)'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const watchlist = getWatchlist();
+                watchlist.splice(index, 1);
+                saveWatchlist(watchlist);
+                renderWatchlist();
+                Toast.fire({
+                    icon: 'success',
+                    title: `Đã xóa ${pair} khỏi danh sách!`
+                });
+            }
+        });
     };
+
+    // Hàm hiển thị popup để thêm cặp token mới
+    const showAddPairPopup = () => {
+        Swal.fire({
+            title: 'Thêm cặp token mới',
+            html: `
+                <input id="swal-input1" class="swal2-input" placeholder="Token A (e.g. BTC)">
+                <input id="swal-input2" class="swal2-input" placeholder="Token B (e.g. USDT)">
+            `,
+            confirmButtonText: 'Thêm vào danh sách',
+            confirmButtonColor: '#357ce1',
+            background: 'var(--dex-panel-bg)',
+            color: 'var(--dex-text-primary)',
+            focusConfirm: false,
+            preConfirm: () => {
+                const tokenA = document.getElementById('swal-input1').value.toUpperCase();
+                const tokenB = document.getElementById('swal-input2').value.toUpperCase();
+                if (!tokenA || !tokenB) {
+                    Swal.showValidationMessage(`Vui lòng nhập đầy đủ cả hai token`);
+                }
+                if (tokenA === tokenB) {
+                    Swal.showValidationMessage(`Vui lòng nhập 2 token khác nhau`);
+                }
+                return { tokenA: tokenA, tokenB: tokenB };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const { tokenA, tokenB } = result.value;
+                const newPair = `${tokenA}/${tokenB}`;
+                const watchlist = getWatchlist();
+                
+                if (watchlist.includes(newPair)) {
+                     Toast.fire({
+                        icon: 'error',
+                        title: `${newPair} đã có trong danh sách!`
+                    });
+                    return;
+                }
+
+                watchlist.push(newPair);
+                saveWatchlist(watchlist);
+                renderWatchlist();
+                Toast.fire({
+                    icon: 'success',
+                    title: `Đã thêm ${newPair} vào danh sách!`
+                });
+            }
+        });
+    };
+
+    // Gán sự kiện click cho nút "Add New Pair"
+    addPairBtn.addEventListener('click', showAddPairPopup);
     
     // Render watchlist lần đầu khi trang được tải
     renderWatchlist();
