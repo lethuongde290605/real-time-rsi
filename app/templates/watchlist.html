@@ -1,6 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2>Your Watchlist</h2>
-    <table><tbody id="watchlist"></tbody></table>
-    <script src="/static/js/watchlist.js"></script>
-{% endblock %} 
+<div class="container mt-4">
+    <h2>⭐ Your Watchlist</h2>
+
+    <div class="input-group my-3 w-50">
+        <input type="text" id="pairInput" class="form-control" placeholder="Ví dụ: BTC/USDT">
+        <button id="addPairBtn" class="btn btn-primary">Add Pair</button>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Pair</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="watchlist-body">
+            </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='js/watchlist.js') }}"></script>
+{% endblock %}

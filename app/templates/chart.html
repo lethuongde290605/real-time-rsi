@@ -1,5 +1,45 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="container mt-4">
     <h2>Chart for {{ tokenA }}/{{ tokenB }}</h2>
-    <iframe src="https://www.tradingview.com" width="100%" height="500px"></iframe>
-{% endblock %} 
+    <a href="{{ url_for('main.watchlist') }}">&larr; Back to Watchlist</a>
+
+    <div class="tradingview-widget-container" style="height:600px; width:100%; margin-top: 1rem;">
+        <div id="tradingview_chart" style="height:100%; width:100%;"></div>
+        <div class="tradingview-widget-copyright">
+            <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+                <span class="blue-text">Track all markets on TradingView</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+    // Lấy token từ template Flask
+    const tokenA = "{{ tokenA }}";
+    const tokenB = "{{ tokenB }}";
+    // Giả sử dùng sàn BINANCE, bạn có thể thay đổi nếu cần
+    const tradingViewSymbol = `BINANCE:${tokenA}${tokenB}`;
+
+    // Tạo widget khi trang đã tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+        new TradingView.widget({
+            "autosize": true,
+            "symbol": tradingViewSymbol,
+            "interval": "D", // Khung thời gian: D=ngày, 60=1h, 1=1m
+            "timezone": "Asia/Ho_Chi_Minh",
+            "theme": "light",
+            "style": "1",
+            "locale": "en",
+            "enable_publishing": false,
+            "allow_symbol_change": true, // Cho phép người dùng thay đổi cặp token trên biểu đồ
+            "studies": [
+                "RSI@tv-basicstudies",
+                "MACD@tv-basicstudies"
+            ],
+            "container_id": "tradingview_chart"
+        });
+    });
+</script>
+{% endblock %}
