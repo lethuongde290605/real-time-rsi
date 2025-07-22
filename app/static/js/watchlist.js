@@ -1,12 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const pairInput = document.getElementById('pairInput');
-    const addPairBtn = document.getElementById('addPairBtn');
     const watchlistBody = document.getElementById('watchlist-body');
 
     // Lấy watchlist từ localStorage hoặc tạo mảng rỗng nếu chưa có
     const getWatchlist = () => {
         const watchlist = localStorage.getItem('watchlist');
-        return watchlist ? JSON.parse(watchlist) : [];
+        // Trả về một vài cặp token mẫu nếu watchlist rỗng để demo
+        return watchlist ? JSON.parse(watchlist) : ['BTC/USDT', 'ETH/USDT', 'SOL/BNB'];
     };
 
     // Lưu watchlist vào localStorage
@@ -20,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         watchlistBody.innerHTML = ''; // Xóa danh sách cũ
 
         if (watchlist.length === 0) {
-            watchlistBody.innerHTML = '<tr><td colspan="2">Your watchlist is empty.</td></tr>';
+            watchlistBody.innerHTML = '<tr><td colspan="4" class="text-center empty-watchlist-text">Your watchlist is empty. Use the search bar to add new pairs.</td></tr>';
             return;
         }
 
@@ -33,62 +32,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = document.createElement('a');
             link.textContent = pair;
             link.href = `/chart/${tokenA}/${tokenB}`; // Điều hướng đến trang chart
-            link.style.textDecoration = 'none';
-            link.style.fontWeight = 'bold';
             pairCell.appendChild(link);
+
+            // Cột giá và thay đổi (dữ liệu giả lập để minh họa)
+            const priceCell = document.createElement('td');
+            priceCell.textContent = `$${(Math.random() * 70000).toFixed(2)}`;
+
+            const changeCell = document.createElement('td');
+            const changeValue = (Math.random() - 0.5) * 10;
+            changeCell.textContent = `${changeValue.toFixed(2)}%`;
+            changeCell.className = changeValue >= 0 ? 'positive' : 'negative';
             
             // Cột nút xóa
             const actionCell = document.createElement('td');
+            actionCell.className = 'text-end';
             const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '❌';
-            deleteBtn.className = 'btn btn-sm btn-danger';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteBtn.className = 'btn btn-sm btn-danger-custom';
             deleteBtn.onclick = () => {
                 removePair(index);
             };
             actionCell.appendChild(deleteBtn);
 
             row.appendChild(pairCell);
+            row.appendChild(priceCell);
+            row.appendChild(changeCell);
             row.appendChild(actionCell);
             watchlistBody.appendChild(row);
         });
     };
-
-    // Hàm thêm một cặp mới
-    const addPair = () => {
-        const pair = pairInput.value.trim().toUpperCase();
-        if (!pair.includes('/')) {
-            alert('Định dạng không hợp lệ. Vui lòng nhập theo dạng: TOKENA/TOKENB (ví dụ: BTC/USDT)');
-            return;
-        }
-
-        const watchlist = getWatchlist();
-        if (watchlist.includes(pair)) {
-            alert('Cặp token này đã có trong watchlist.');
-            return;
-        }
-
-        watchlist.push(pair);
-        saveWatchlist(watchlist);
-        renderWatchlist(); // Cập nhật lại giao diện
-        pairInput.value = ''; // Xóa ô input
-    };
     
     // Hàm xóa một cặp khỏi danh sách
     const removePair = (index) => {
-        const watchlist = getWatchlist();
-        watchlist.splice(index, 1); // Xóa phần tử tại vị trí index
-        saveWatchlist(watchlist);
-        renderWatchlist(); // Cập nhật lại giao diện
+        if (confirm('Are you sure you want to remove this pair?')) {
+            const watchlist = getWatchlist();
+            watchlist.splice(index, 1); // Xóa phần tử tại vị trí index
+            saveWatchlist(watchlist);
+            renderWatchlist(); // Cập nhật lại giao diện
+        }
     };
     
-    // Gán sự kiện cho nút "Add Pair" và phím Enter
-    addPairBtn.addEventListener('click', addPair);
-    pairInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            addPair();
-        }
-    });
-
     // Render watchlist lần đầu khi trang được tải
     renderWatchlist();
 });

@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
+<link rel="stylesheet" href="https://s3.tradingview.com/tv.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+
 <div class="container mt-4">
     <h2>Chart for {{ tokenA }}/{{ tokenB }}</h2>
     <a href="{{ url_for('main.watchlist') }}">&larr; Back to Watchlist</a>

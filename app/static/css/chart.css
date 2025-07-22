@@ -1,0 +1,165 @@
+:root {
+      --dex-bg: #131722; /* Nền chính */
+      --dex-panel-bg: #1e222d; /* Nền của panel, chart */
+      --dex-border: #2a2e39; /* Đường viền */
+      --dex-text-primary: #d1d4dc; /* Màu chữ chính */
+      --dex-text-secondary: #848e9c; /* Màu chữ phụ */
+      --dex-accent: #357ce1; /* Màu nhấn (button) */
+      --dex-success: #0ecb81; /* Màu tăng giá */
+      --dex-danger: #f6465d; /* Màu giảm giá */
+  }
+
+/* Reset lại một số style của Bootstrap để phù hợp với DEX */
+body {
+    background-color: var(--dex-bg);
+    color: var(--dex-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.container-fluid {
+    max-width: 1600px; /* Giới hạn chiều rộng tối đa */
+}
+
+/* Layout chính */
+.dex-layout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-panel {
+    flex: 1;
+    min-width: 600px;
+    background-color: var(--dex-panel-bg);
+    border: 1px solid var(--dex-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header của Chart */
+.chart-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--dex-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.token-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.token-logos img { width: 32px; height: 32px; }
+.token-logos .token-logo-b { margin-left: -12px; }
+.pair-name { font-size: 1.5rem; font-weight: 600; margin: 0; }
+
+.market-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+.stat { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.8rem; color: var(--dex-text-secondary); }
+.stat-value { font-size: 0.95rem; font-weight: 600; }
+.stat-value.positive { color: var(--dex-success); }
+.stat-value.negative { color: var(--dex-danger); }
+
+.tradingview-container {
+    flex-grow: 1;
+    height: 65vh;
+    min-height: 500px;
+}
+
+/* Panel Giao dịch (Swap) */
+.trade-panel {
+    width: 100%;
+    max-width: 380px;
+    background-color: var(--dex-panel-bg);
+    border: 1px solid var(--dex-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+@media (max-width: 992px) {
+    .trade-panel { max-width: 100%; }
+}
+
+.trade-panel h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+
+.swap-input-group {
+    background-color: var(--dex-bg);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+.swap-input-group .label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--dex-text-secondary);
+    margin-bottom: 0.5rem;
+}
+.swap-input-group .input-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.swap-input {
+    background: none;
+    border: none;
+    color: var(--dex-text-primary);
+    font-size: 1.5rem;
+    font-weight: 500;
+    width: 100%;
+    padding: 0;
+}
+.swap-input:focus { outline: none; }
+
+.token-select-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #2c3240;
+    border: 1px solid var(--dex-border);
+    border-radius: 16px;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.token-select-btn:hover { background-color: #383f4f; }
+.token-select-btn img { width: 24px; height: 24px; }
+.token-select-btn span { font-weight: 600; }
+
+.swap-separator { text-align: center; }
+.swap-separator-btn {
+    background-color: var(--dex-bg);
+    border: 1px solid var(--dex-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--dex-text-secondary);
+}
+.swap-separator-btn:hover { border-color: var(--dex-accent); color: var(--dex-accent); transform: rotate(180deg); }
+
+.connect-wallet-btn {
+    background-color: var(--dex-accent);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-align: center;
+    padding: 0.8rem;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.connect-wallet-btn:hover { opacity: 0.9; }

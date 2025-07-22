@@ -1,23 +1,35 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2>⭐ Your Watchlist</h2>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/watchlist.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <div class="input-group my-3 w-50">
-        <input type="text" id="pairInput" class="form-control" placeholder="Ví dụ: BTC/USDT">
-        <button id="addPairBtn" class="btn btn-primary">Add Pair</button>
+<div class="container mt-5">
+    <div class="watchlist-header">
+        <h2 class="watchlist-title">⭐ Your Watchlist</h2>
+        <a href="/search" class="search-bar-link">
+            <i class="fas fa-search"></i>
+            <span>Search for a new pair (e.g. BTC/USDT)</span>
+        </a>
     </div>
 
-    <table class="table table-hover">
+    <table class="table table-hover watchlist-table mt-4">
         <thead>
             <tr>
                 <th>Pair</th>
-                <th>Action</th>
+                <th>Price</th>
+                <th>Change (24h)</th>
+                <th class="text-end">Action</th>
             </tr>
         </thead>
         <tbody id="watchlist-body">
             </tbody>
     </table>
+
+    <div class="add-pair-container mt-3">
+        <a href="/search" class="btn btn-primary-custom">
+            <i class="fas fa-plus-circle"></i> Add New Pair
+        </a>
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/watchlist.js') }}"></script>
