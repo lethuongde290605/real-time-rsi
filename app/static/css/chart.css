@@ -1,31 +1,55 @@
+/* --- BIẾN MÀU MẶC ĐỊNH (LIGHT THEME) --- */
 :root {
-      --dex-bg: #131722; /* Nền chính */
-      --dex-panel-bg: #1e222d; /* Nền của panel, chart */
-      --dex-border: #2a2e39; /* Đường viền */
-      --dex-text-primary: #d1d4dc; /* Màu chữ chính */
-      --dex-text-secondary: #848e9c; /* Màu chữ phụ */
-      --dex-accent: #357ce1; /* Màu nhấn (button) */
-      --dex-success: #0ecb81; /* Màu tăng giá */
-      --dex-danger: #f6465d; /* Màu giảm giá */
-  }
+    --dex-bg: #f5f8fa;
+    --dex-panel-bg: #ffffff;
+    --dex-border: #e6ecf0;
+    --dex-text-primary: #14171a;
+    --dex-text-secondary: #657786;
+    --dex-accent: #357ce1;
+    --dex-success: #17bf63;
+    --dex-danger: #e0245e;
+    --dex-hover-bg: #f5f8fa;
+}
 
-/* Reset lại một số style của Bootstrap để phù hợp với DEX */
+/* --- BIẾN MÀU CHO DARK THEME --- */
+[data-theme="dark"] {
+    --dex-bg: #131722;
+    --dex-panel-bg: #1e222d;
+    --dex-border: #2a2e39;
+    --dex-text-primary: #d1d4dc;
+    --dex-text-secondary: #848e9c;
+    --dex-hover-bg: #2a2e39;
+}
+
 body {
     background-color: var(--dex-bg);
     color: var(--dex-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container-fluid {
-    max-width: 1600px; /* Giới hạn chiều rộng tối đa */
+    max-width: 1800px;
+}
+
+.back-link {
+    font-size: 0.85rem;
+    color: var(--dex-text-secondary);
+    text-decoration: none;
+}
+.back-link:hover {
+    color: var(--dex-accent);
 }
 
 /* Layout chính */
 .dex-layout {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 1rem;
+}
+@media (max-width: 1200px) {
+    .dex-layout { flex-wrap: wrap; }
 }
 
 .chart-panel {
@@ -36,6 +60,7 @@ body {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 /* Header của Chart */
@@ -46,23 +71,14 @@ body {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1.5rem;
-}
-.token-info {
-    display: flex;
-    align-items: center;
     gap: 1rem;
 }
-.token-logos img { width: 32px; height: 32px; }
-.token-logos .token-logo-b { margin-left: -12px; }
+.token-info { display: flex; align-items: center; gap: 1rem; }
+.token-logos img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--dex-bg); }
+.token-logos .token-logo-b { margin-left: -14px; }
 .pair-name { font-size: 1.5rem; font-weight: 600; margin: 0; }
 
-.market-stats {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
+.market-stats { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .stat { display: flex; flex-direction: column; }
 .stat-label { font-size: 0.8rem; color: var(--dex-text-secondary); }
 .stat-value { font-size: 0.95rem; font-weight: 600; }
@@ -79,6 +95,7 @@ body {
 .trade-panel {
     width: 100%;
     max-width: 380px;
+    min-width: 320px;
     background-color: var(--dex-panel-bg);
     border: 1px solid var(--dex-border);
     border-radius: 8px;
@@ -86,80 +103,42 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    align-self: flex-start;
+    transition: background-color 0.3s, border-color 0.3s;
 }
-@media (max-width: 992px) {
-    .trade-panel { max-width: 100%; }
+@media (max-width: 1200px) {
+    .trade-panel { max-width: 100%; order: -1; }
 }
 
 .trade-panel h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
-
-.swap-input-group {
-    background-color: var(--dex-bg);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-}
-.swap-input-group .label-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--dex-text-secondary);
-    margin-bottom: 0.5rem;
-}
-.swap-input-group .input-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.swap-input {
-    background: none;
-    border: none;
-    color: var(--dex-text-primary);
-    font-size: 1.5rem;
-    font-weight: 500;
-    width: 100%;
-    padding: 0;
-}
+.swap-input-group { background-color: var(--dex-bg); border-radius: 8px; padding: 0.75rem 1rem; transition: background-color 0.3s;}
+.swap-input-group .label-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--dex-text-secondary); margin-bottom: 0.5rem; }
+.swap-input-group .input-row { display: flex; justify-content: space-between; align-items: center; }
+.swap-input { background: none; border: none; color: var(--dex-text-primary); font-size: 1.5rem; font-weight: 500; width: 100%; padding: 0; }
 .swap-input:focus { outline: none; }
-
-.token-select-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #2c3240;
-    border: 1px solid var(--dex-border);
-    border-radius: 16px;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.token-select-btn:hover { background-color: #383f4f; }
-.token-select-btn img { width: 24px; height: 24px; }
+.token-select-btn { display: flex; align-items: center; gap: 0.5rem; background-color: var(--dex-hover-bg); border: 1px solid var(--dex-border); border-radius: 16px; padding: 0.4rem 0.8rem; cursor: pointer; transition: background-color 0.2s; }
+.token-select-btn:hover { background-color: var(--dex-border); }
+.token-select-btn img { width: 24px; height: 24px; border-radius: 50%; }
 .token-select-btn span { font-weight: 600; }
-
-.swap-separator { text-align: center; }
-.swap-separator-btn {
-    background-color: var(--dex-bg);
-    border: 1px solid var(--dex-border);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--dex-text-secondary);
-}
+.token-select-btn i { font-size: 0.8rem; }
+.swap-separator { text-align: center; margin: -0.5rem 0; }
+.swap-separator-btn { background-color: var(--dex-panel-bg); border: 1px solid var(--dex-border); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; transition: all 0.2s; color: var(--dex-text-secondary); }
 .swap-separator-btn:hover { border-color: var(--dex-accent); color: var(--dex-accent); transform: rotate(180deg); }
-
-.connect-wallet-btn {
-    background-color: var(--dex-accent);
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    text-align: center;
-    padding: 0.8rem;
-    width: 100%;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
+.connect-wallet-btn { background-color: var(--dex-accent); color: #fff; font-size: 1.1rem; font-weight: 600; border-radius: 8px; text-align: center; padding: 0.8rem; width: 100%; border: none; cursor: pointer; transition: opacity 0.2s; }
 .connect-wallet-btn:hover { opacity: 0.9; }
+
+/* Theme Switcher */
+.theme-switcher { display: flex; align-items: center; }
+.theme-switch-checkbox { height: 0; width: 0; visibility: hidden; }
+.theme-switch-label { display: flex; align-items: center; justify-content: space-between; cursor: pointer; width: 50px; height: 26px; background: var(--dex-text-secondary); border-radius: 100px; position: relative; transition: background-color .2s; }
+.theme-switch-label .theme-switch-ball { position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: white; transition: 0.2s; }
+.theme-switch-checkbox:checked + .theme-switch-label .theme-switch-ball { left: calc(100% - 2px); transform: translateX(-100%); }
+.theme-switch-label i { color: #fff; font-size: 14px; }
+.theme-switch-label .moon-icon { margin-left: 4px; }
+.theme-switch-label .sun-icon { margin-right: 4px; }
+
+/* Chart Loader */
+.chart-loader { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; color: var(--dex-text-secondary); }
+.spinner { width: 48px; height: 48px; border: 5px solid var(--dex-border); border-bottom-color: var(--dex-accent); border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+@keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.chart-loader p { margin-top: 1rem; font-weight: 500; }

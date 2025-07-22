@@ -1,48 +1,112 @@
 {% extends "layout.html" %}
 {% block content %}
-<link rel="stylesheet" href="https://s3.tradingview.com/tv.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="container mt-4">
-    <h2>Chart for {{ tokenA }}/{{ tokenB }}</h2>
-    <a href="{{ url_for('main.watchlist') }}">&larr; Back to Watchlist</a>
+<div class="container-fluid mt-4">
+    <div class="dex-layout">
 
-    <div class="tradingview-widget-container" style="height:600px; width:100%; margin-top: 1rem;">
-        <div id="tradingview_chart" style="height:100%; width:100%;"></div>
-        <div class="tradingview-widget-copyright">
-            <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
-                <span class="blue-text">Track all markets on TradingView</span>
-            </a>
+        <div class="chart-panel">
+            <div class="chart-header">
+                <div class="token-info">
+                    <div class="token-logos">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="{{ tokenA }} logo" class="token-logo-a">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt="{{ tokenB }} logo" class="token-logo-b">
+                    </div>
+                    <div>
+                        <h2 class="pair-name">{{ tokenA }}/{{ tokenB }}</h2>
+                        <a href="{{ url_for('main.watchlist') }}" class="back-link">&larr; Quay lại Watchlist</a>
+                    </div>
+                </div>
+
+                <div class="market-stats">
+                    <div class="stat">
+                        <div class="stat-label">Giá cuối</div>
+                        <div class="stat-value" id="price-display">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Thay đổi 24h</div>
+                        <div class="stat-value" id="price-change-24h">+0.00 (0.00%)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Cao 24h</div>
+                        <div class="stat-value" id="high-24h">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Thấp 24h</div>
+                        <div class="stat-value" id="low-24h">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">KLGD 24h ({{ tokenA }})</div>
+                        <div class="stat-value" id="volume-24h-token">0.00</div>
+                    </div>
+                     <div class="stat">
+                        <div class="stat-label">KLGD 24h ({{ tokenB }})</div>
+                        <div class="stat-value" id="volume-24h-quote">$0</div>
+                    </div>
+                </div>
+                 <div class="theme-switcher">
+                    <input type="checkbox" id="themeSwitch" class="theme-switch-checkbox">
+                    <label for="themeSwitch" class="theme-switch-label">
+                        <i class="fas fa-moon moon-icon"></i>
+                        <i class="fas fa-sun sun-icon"></i>
+                        <span class="theme-switch-ball"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="tradingview_chart_container" class="tradingview-container">
+                </div>
         </div>
+
+        <div class="trade-panel">
+            <h3>Swap Tokens (Comming soon...)</h3>
+            <div class="swap-input-group">
+                <div class="label-row">
+                    <span>Bạn trả</span>
+                    <span>Số dư: 0.00</span>
+                </div>
+                <div class="input-row">
+                    <input type="number" class="swap-input" placeholder="0.0">
+                    <button class="token-select-btn">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="{{ tokenA }} logo">
+                        <span>{{ tokenA }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="swap-separator">
+                <button class="swap-separator-btn"><i class="fas fa-arrow-down"></i></button>
+            </div>
+
+            <div class="swap-input-group">
+                <div class="label-row">
+                    <span>Bạn nhận (ước tính)</span>
+                </div>
+                <div class="input-row">
+                    <input type="number" class="swap-input" placeholder="0.0" disabled>
+                     <button class="token-select-btn">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt="{{ tokenB }} logo">
+                        <span>{{ tokenB }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="connect-wallet-btn">
+                Kết nối Ví 
+            </button>
+        </div>
+
     </div>
 </div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script type="text/javascript">
-    // Lấy token từ template Flask
+    // Truyền biến từ Flask sang JavaScript
     const tokenA = "{{ tokenA }}";
     const tokenB = "{{ tokenB }}";
-    // Giả sử dùng sàn BINANCE, bạn có thể thay đổi nếu cần
-    const tradingViewSymbol = `BINANCE:${tokenA}${tokenB}`;
-
-    // Tạo widget khi trang đã tải xong
-    document.addEventListener('DOMContentLoaded', function() {
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": tradingViewSymbol,
-            "interval": "D", // Khung thời gian: D=ngày, 60=1h, 1=1m
-            "timezone": "Asia/Ho_Chi_Minh",
-            "theme": "light",
-            "style": "1",
-            "locale": "en",
-            "enable_publishing": false,
-            "allow_symbol_change": true, // Cho phép người dùng thay đổi cặp token trên biểu đồ
-            "studies": [
-                "RSI@tv-basicstudies",
-                "MACD@tv-basicstudies"
-            ],
-            "container_id": "tradingview_chart"
-        });
-    });
 </script>
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
 {% endblock %}
