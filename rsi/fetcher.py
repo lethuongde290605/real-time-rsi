@@ -5,9 +5,6 @@ price_cache = {}
 
 def get_price_pair_dexscreener(pair_symbol):
     # Ví dụ pair_symbol = "SOL/USDC"
-
-    # Format URL theo yêu cầu DexScreener
-    # Để đúng, cần biết rõ pair address, nhưng demo ta dùng search
     url = f"https://api.dexscreener.com/latest/dex/search/?q={pair_symbol}"
 
     try:
@@ -23,9 +20,8 @@ def get_price_pair_dexscreener(pair_symbol):
             return None
 
     except Exception as e:
-        print(f"[❌] Lỗi khi lấy giá cho {pair_symbol}: {e}")
+        print(f"Lỗi khi lấy giá cho {pair_symbol}: {e}")
         return None
-
 
 def update_price_history(pair_symbol, interval_seconds):
     now = int(time.time())
@@ -35,6 +31,7 @@ def update_price_history(pair_symbol, interval_seconds):
         price_cache[key] = []
 
     price = get_price_pair_dexscreener(pair_symbol)
+    
     if price:
         price_cache[key].append((now, price))
         price_cache[key] = price_cache[key][-100:]  # Chỉ giữ 100 điểm gần nhất

@@ -1,7 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2>MultiRSI</h2>
-    <button onclick="addRSIChart('SOL/USDC')">Add RSI Chart</button>
-    <div id="rsiCharts"></div>
-    <script src="/static/js/rsi.js"></script>
-{% endblock %} 
+<h2>Multi RSI Charts</h2>
+
+<form onsubmit="event.preventDefault(); handleAddChart();">
+  <input id="tokenInput" placeholder="Token Pair (e.g. BTC/USDC)">
+  <select id="intervalInput">
+    <option value="1">1s</option>
+    <option value="5">5s</option>
+    <option value="30">30s</option>
+    <option value="60" selected>1m</option>
+  </select>
+  <button type="submit">➕ Add RSI Chart</button>
+</form>
+
+<div id="rsiCharts"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/rsi.js') }}"></script>
+
+<script>
+  function handleAddChart() {
+    const token = document.getElementById("tokenInput").value.trim();
+    const interval = parseInt(document.getElementById("intervalInput").value);
+    if (!token) return alert("Nhập token!");
+    addRSIChart(token, interval);
+  }
+
+  // Khôi phục biểu đồ khi load trang
+  restoreChartsFromStorage();
+</script>
+{% endblock %}

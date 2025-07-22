@@ -14,6 +14,6 @@ def chart(tokenA, tokenB):
 def watchlist():
     return render_template('watchlist.html')
 
-@bp.route('/rsi')
-def rsi():
-    return render_template('multi_rsi.html') 
+@bp.route("/multi_rsi")
+def show_multi_rsi():
+    return render_template("multi_rsi.html")
