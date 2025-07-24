@@ -1,16 +1,669 @@
+/* --- BIẾN MÀU CHỦ ĐẠO (DARK THEME) --- */
+:root {
+    --dex-bg: #131722;
+    /* Nền tối sâu */
+    --dex-panel-bg: #1e222d;
+    /* Nền panel tối hơn một chút */
+    --dex-border: #2a2e39;
+    /* Viền tối */
+    --dex-text-primary: #d1d4dc;
+    /* Trắng nhạt cho văn bản chính */
+    --dex-text-secondary: #848e9c;
+    /* Xám nhạt cho văn bản phụ */
+    --dex-accent: #357ce1;
+    /* Màu xanh chủ đạo */
+    --dex-success: #0ecb81;
+    /* Xanh lá cho thành công */
+    --dex-danger: #f6465d;
+    /* Đỏ cho lỗi/nguy hiểm */
+    --dex-hover-bg: #2a2e39;
+    /* Nền hover tối */
+
+    /* Biến phụ trợ */
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 60px;
+    /* --navbar-height: 60px; */
+    /* Navbar removed */
+    --dex-bg-rgb: 19, 23, 34;
+    /* Dành cho background-overlay */
+}
+
+/* General Resets and Body Styles */
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
     margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: var(--dex-text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--dex-bg);
 }
+
+/* GIF Background */
+.background-gif {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
+
+.background-gif img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(5px) grayscale(50%);
+    opacity: 0.15;
+}
+
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--dex-bg-rgb), 0.85);
+    /* Dynamic overlay color based on theme */
+    z-index: -1;
+}
+
+/* --- Sidebar Styles --- */
 .sidebar {
-    width: 20%;
-    background: #222;
-    color: white;
-    height: 100vh;
-    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--sidebar-width);
+    background-color: var(--dex-panel-bg);
+    /* Using panel background for sidebar */
+    border-right: 1px solid var(--dex-border);
+    /* Using dex-border */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    /* Ensure sidebar is above content */
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    /* Initial padding */
+    transition: width 0.3s ease-in-out;
+    /* For initial load / non-JS */
 }
-.content {
-    width: 80%;
+
+/* Styles when sidebar is collapsed (JS will apply these via GSAP) */
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 15px;
+    /* Position relative to sidebar */
+    left: calc(var(--sidebar-width) - 20px);
+    /* Adjusted for expanded state */
+    background: none;
+    border: none;
+    color: var(--dex-text-primary);
+    font-size: 1.5em;
+    cursor: pointer;
+    z-index: 1001;
+    transition: left 0.3s ease-in-out, color 0.2s ease;
+    /* Smooth transition for position and color */
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.sidebar-toggle:hover {
+    color: var(--dex-accent);
+    background-color: var(--dex-hover-bg);
+}
+
+/* Icon rotation for toggle button */
+.sidebar.collapsed .sidebar-toggle .fa-bars {
+    transform: rotate(0deg);
+}
+
+.sidebar:not(.collapsed) .sidebar-toggle .fa-chevron-left {
+    transform: rotate(0deg);
+}
+
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 40px 0 0 0;
+    flex-grow: 1;
+    /* Allow menu to take available space */
+}
+
+.sidebar-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-item:hover {
+    background-color: var(--dex-hover-bg);
+    transform: translateX(5px);
+}
+
+.sidebar-item.active {
+    background-color: var(--dex-accent);
+    /* Use accent color for active */
+    color: white;
+    font-weight: 600;
+    border-radius: 0 5px 5px 0;
+    position: relative;
+    /* For active indicator */
+}
+
+/* Active indicator bar */
+.sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: white;
+    /* Or a bright accent color */
+    border-radius: 0 3px 3px 0;
+}
+
+.sidebar-item.active a,
+.sidebar-item.active .sidebar-icon,
+.sidebar-item.active .sidebar-text {
+    color: white !important;
+    /* Ensure text and icon are white on active */
+}
+
+.sidebar-item a {
+    text-decoration: none;
+    color: var(--dex-text-primary);
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.sidebar-icon {
+    font-size: 1.2em;
+    margin-right: 15px;
+    width: 20px;
+    /* Fixed width for alignment */
+    text-align: center;
+    color: var(--dex-text-secondary);
+    transition: color 0.2s ease;
+}
+
+.sidebar-item:hover .sidebar-icon {
+    color: var(--dex-accent);
+}
+
+.sidebar-item.active .sidebar-icon {
+    color: white;
+}
+
+.sidebar-text {
+    opacity: 1;
+    max-width: 100%;
+    transition: opacity 0.3s ease, max-width 0.3s ease;
+    overflow: hidden;
+    /* Hide overflowing text when collapsing */
+}
+
+/* Styles for collapsed state (GSAP will handle the transition, but these define end state) */
+.sidebar.collapsed .sidebar-text {
+    max-width: 0;
+    opacity: 0;
+}
+
+.sidebar.collapsed .sidebar-icon {
+    margin-right: 0;
+    width: 100%;
+    text-align: center;
+}
+
+/* Sidebar Footer for utility icons */
+.sidebar-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--dex-border);
+    display: flex;
+    justify-content: space-around;
+    /* Distribute buttons */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    opacity: 0;
+    pointer-events: none;
+    /* Disable interaction when hidden */
+}
+
+/* --- Content Area Styles --- */
+.content-container {
+    margin-left: var(--sidebar-width);
+    /* Initial margin, matches sidebar width */
+    width: calc(100% - var(--sidebar-width));
+    /* Initial width */
     padding: 20px;
-} 
+    /* Padding for content */
+    padding-top: 20px;
+    /* Adjusted padding-top since navbar is removed */
+    min-height: 100vh;
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    /* For initial load / non-JS */
+}
+
+/* Styles when sidebar is collapsed (JS will apply these via GSAP) */
+body.sidebar-collapsed .content-container {
+    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+.content {
+    background-color: var(--dex-panel-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    min-height: calc(100vh - 40px);
+    /* Adjust based on padding of content-container */
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+
+/* --- Modal Styles (Bootstrap overrides) --- */
+.modal-content {
+    background-color: var(--dex-panel-bg);
+    color: var(--dex-text-primary);
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--dex-border);
+}
+
+.modal-title {
+    color: var(--dex-accent);
+    font-weight: 600;
+}
+
+.modal-body {
+    background-color: var(--dex-bg);
+    /* Slightly darker background for modal body */
+    border-radius: 0 0 12px 12px;
+}
+
+.btn-close {
+    filter: invert(var(--dex-filter-invert, 0));
+    /* Adjust close button color for dark/light themes */
+}
+
+/* --- Custom Alert Styles --- */
+#custom-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--dex-success);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#custom-alert.hidden {
+    display: none;
+}
+
+#custom-alert.show {
+    opacity: 1;
+    display: block;
+}
+
+/* Utility classes */
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.py-4 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+
+/* --- General UI Elements --- */
+.icon-button {
+    background: none;
+    border: none;
+    color: var(--dex-text-primary);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-button:hover {
+    background-color: var(--dex-hover-bg);
+    color: var(--dex-accent);
+}
+
+/* Search Container in Main Content */
+.search-container-main {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-container-main .form-control {
+    background-color: var(--dex-bg);
+    border: 1px solid var(--dex-border);
+    color: var(--dex-text-primary);
+    padding-right: 40px;
+    /* Space for icon if added */
+}
+
+.search-container-main .form-control::placeholder {
+    color: var(--dex-text-secondary);
+}
+
+.search-container-main .form-control:focus {
+    border-color: var(--dex-accent);
+    box-shadow: 0 0 0 0.25rem rgba(var(--dex-accent-rgb, 53, 124, 225), 0.25);
+    /* Accent blue shadow */
+}
+
+.search-dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: var(--dex-panel-bg);
+    border: 1px solid var(--dex-border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.search-dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--dex-text-primary);
+    transition: background-color 0.2s ease;
+}
+
+.search-dropdown-item:hover {
+    background-color: var(--dex-hover-bg);
+}
+
+
+/* Page Content Base Styles */
+.page-content {
+    background-color: var(--dex-panel-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 40px);
+    /* Matches content min-height for consistent panel look */
+}
+
+
+/* Page Header (if used) */
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--dex-panel-bg), var(--dex-hover-bg));
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.page-header h1 {
+    color: var(--dex-accent);
+    /* Changed to accent color */
+    font-size: 2.2em;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: var(--dex-text-secondary);
+    /* Changed to secondary text */
+    font-size: 1.1em;
+}
+
+/* Dashboard Section */
+.dashboard-section {
+    background-color: var(--dex-panel-bg);
+    /* Use panel background */
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    /* Softer shadow */
+    border: 1px solid var(--dex-border);
+    /* Changed to dex-border */
+    transition: all 0.3s ease-in-out;
+}
+
+.dashboard-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    /* Softer hover shadow */
+}
+
+.dashboard-section h2 {
+    color: var(--dex-accent);
+    /* Changed to accent color */
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--dex-border);
+    /* Changed to dex-border */
+    padding-bottom: 15px;
+}
+
+/* Card Grid for Dashboard */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background-color: var(--dex-panel-bg);
+    border: 1px solid var(--dex-border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    /* Ensure cards same height */
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--dex-text-primary);
+}
+
+.data-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--dex-accent);
+}
+
+.change {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.change.positive {
+    color: var(--dex-success);
+}
+
+.change.negative {
+    color: var(--dex-danger);
+}
+
+.card-text {
+    font-size: 0.9em;
+    color: var(--dex-text-secondary);
+    margin-bottom: 5px;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .sidebar {
+        left: calc(-1 * var(--sidebar-width));
+        /* Hide sidebar off-screen by default */
+        width: var(--sidebar-width);
+    }
+
+    /* Show sidebar when active (toggled) */
+    .sidebar:not(.collapsed) {
+        left: 0;
+    }
+
+    .sidebar-toggle {
+        left: 15px;
+        /* Bring toggle button into view on mobile */
+        top: 15px;
+        /* Adjust top position for better placement */
+        z-index: 2001;
+        /* Higher z-index to be clickable over content */
+    }
+
+    body.sidebar-collapsed .sidebar-toggle {
+        left: calc(var(--sidebar-collapsed-width) - 20px);
+        /* Adjust for collapsed state */
+    }
+
+    .content-container {
+        margin-left: 0;
+        /* Content starts from left edge on mobile */
+        width: 100%;
+        /* Content always 100% width on mobile, fills screen */
+        padding: 15px;
+        padding-top: 55px;
+        /* Adjusted padding-top for no navbar */
+    }
+
+    body.sidebar-collapsed .content-container {
+        margin-left: var(--sidebar-collapsed-width);
+        /* Push content when sidebar is open on mobile */
+        width: calc(100% - var(--sidebar-collapsed-width));
+        /* Adjust width accordingly */
+    }
+
+    .sidebar .sidebar-text {
+        max-width: 0;
+        opacity: 0;
+        transition: max-width 0.3s ease, opacity 0.3s ease;
+        overflow: hidden;
+    }
+
+    .sidebar .sidebar-icon {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Sidebar Footer adjustment for mobile collapsed state */
+    .sidebar.collapsed .sidebar-footer {
+        display: none;
+        /* Hide footer entirely when collapsed on mobile */
+    }
+}
+
+@media (min-width: 993px) {
+
+    /* Desktop specific styles */
+    .sidebar {
+        left: 0;
+        /* Always visible on desktop */
+    }
+
+    .sidebar-toggle {
+        left: calc(var(--sidebar-width) - 20px);
+        /* Default position for desktop (sidebar expanded) */
+    }
+
+    .sidebar.collapsed .sidebar-toggle {
+        left: calc(var(--sidebar-collapsed-width) - 20px);
+    }
+
+    .content-container {
+        margin-left: var(--sidebar-width);
+        /* Default margin for desktop (sidebar expanded) */
+        width: calc(100% - var(--sidebar-width));
+        padding-top: 20px;
+        /* Reset padding-top for desktop */
+    }
+
+    .sidebar .sidebar-text {
+        max-width: 100%;
+        /* Show text when sidebar is open on mobile */
+        opacity: 1;
+    }
+
+    .sidebar .sidebar-icon {
+        margin-right: 15px;
+        /* Restore margin for icons */
+        width: auto;
+        text-align: left;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .chart-panel {
+        min-width: unset;
+        width: 100%;
+    }
+}
+
+/* Base Styles for Icons (ensure monochrome) */
+i.fas,
+i.far,
+i.fab {
+    color: var(--dex-text-primary);
+    transition: color 0.2s ease;
+}
+
+/* Hover effect for icons in button (if any) */
+button:hover i.fas,
+button:hover i.far,
+button:hover i.fab {
+    color: var(--dex-accent);
+}
