@@ -1,22 +1,50 @@
 {% extends "layout.html" %}
 {% block title %}CryptoFlow Dashboard{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='chart.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='watchlist.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="page-content mt-4"> {# page-content for consistent background/padding, mt-4 for spacing from navbar #}
-    <div class="dashboard-section">
-        <h2>Token Pools (SOL Pairs)</h2>
-        <div class="search-container-main">
-            <input type="text" id="search-input" class="form-control" placeholder="Search token pools..."> {# Added
-            form-control #}
+<div class="page-content mt-4" data-sr-id="1"> {# Added data-sr-id for ScrollReveal #}
+    <div class="dashboard-section reveal-item" data-sr-id="2"> {# Added reveal-item class and data-sr-id #}
+        <h2 class="section-title reveal-item" data-sr-id="3">Token Pools (SOL Ecosystem Tokens)</h2>
+        <p class="disclaimer-coingecko reveal-item" data-sr-id="4">
+            <i class="fas fa-info-circle me-2"></i>
+            Lưu ý: Dữ liệu này được lấy từ các token hàng đầu trong hệ sinh thái Solana qua CoinGecko API. Đây là thông
+            tin về các token, không phải dữ liệu pool thanh khoản chi tiết (ví dụ: dự trữ, số lượng LP, phí). CoinGecko
+            Public API không cung cấp trực tiếp thông tin về sàn DEX cụ thể cho từng token trong endpoint này.
+        </p>
+
+        <div class="search-container-main reveal-item" data-sr-id="5">
+            <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Tìm kiếm token...">
             <div class="search-dropdown" id="search-dropdown"></div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="token-list"> {# Bootstrap grid
-            classes #}
+
+        <div class="table-responsive reveal-item" data-sr-id="6">
+            <table class="table table-hover token-table">
+                <thead>
+                    <tr>
+                        <th>TOKEN</th>
+                        <th>PRICE</th>
+                        <th>VOLUME (24h)</th>
+                        <th>24H CHANGE</th>
+                        <th>MARKET CAP</th>
+                    </tr>
+                </thead>
+                <tbody id="token-table-body">
+                    {# Token rows will be inserted here by JavaScript #}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="chart-modal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered"> {# modal-xl for a larger chart modal #}
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="chartModalLabel">Biểu đồ Token</h5>
@@ -32,74 +60,414 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/scrollreveal"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const tokenList = document.getElementById('token-list');
-        const chartModal = new bootstrap.Modal(document.getElementById('chart-modal')); // Initialize Bootstrap modal
+        const tokenTableBody = document.getElementById('token-table-body');
+        const searchInput = document.getElementById('search-input');
+        const searchDropdown = document.getElementById('search-dropdown');
+        const chartModal = new bootstrap.Modal(document.getElementById('chart-modal'));
         const chartCanvas = document.getElementById('token-chart').getContext('2d');
         let chartInstance = null;
+        let allTokens = []; // To store all fetched tokens for search functionality
+
+        // Initialize ScrollReveal
+        ScrollReveal().reveal('.reveal-item', {
+            delay: 200,
+            distance: '50px',
+            origin: 'bottom',
+            interval: 100, // Stagger animation for multiple elements
+            easing: 'ease-in-out',
+            mobile: false // Disable on mobile for performance if needed
+        });
+        ScrollReveal().reveal('.section-title', {
+            delay: 100,
+            distance: '30px',
+            origin: 'top',
+            easing: 'ease-out'
+        });
 
         async function fetchTokenData() {
             try {
-                const response = await fetch('https://api.orca.so/v1/pools');
+                const COINGECKO_API_URL = "https://api.coingecko.com/api/v3/coins/markets";
+                const params = new URLSearchParams({
+                    vs_currency: 'usd',
+                    category: 'solana-ecosystem',
+                    order: 'market_cap_desc',
+                    per_page: 100, // Fetch more to allow for search and filtering
+                    page: 1,
+                    sparkline: 'false'
+                });
+
+                const response = await fetch(`${COINGECKO_API_URL}?${params.toString()}`);
                 const data = await response.json();
 
-                const pools = Object.values(data);
+                if (!response.ok) {
+                    throw new Error(data.status?.error_message || 'Could not fetch data from CoinGecko.');
+                }
 
-                const solPools = pools.filter(pool => pool.name.endsWith('/SOL'));
-
-                const tokens = solPools.map(pool => {
+                allTokens = data.map((coin, index) => {
                     return {
-                        name: pool.name.split('/')[0],
-                        current_price: pool.price || 0,
-                        price_change_percentage_24h: (Math.random() * 20 - 10).toFixed(2), // Mock data for change
-                        total_volume: pool.volume.h24 || 0,
-                        market_cap: pool.liquidity || 0
+                        id: coin.id,
+                        name: coin.name,
+                        symbol: coin.symbol.toUpperCase(),
+                        price: coin.current_price || 0,
+                        volume24h: coin.total_volume || 0,
+                        change24h: coin.price_change_percentage_24h || 0,
+                        marketCap: coin.market_cap || 0,
+                        image: coin.image
                     };
                 });
 
-                updateTokenList(tokens);
+                updateTokenList(allTokens); // Display all fetched tokens initially
             } catch (error) {
                 console.error('Error fetching token data:', error);
+                tokenTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Không thể tải dữ liệu token từ CoinGecko. Vui lòng thử lại sau.</td></tr>';
             }
         }
 
         function updateTokenList(tokens) {
-            tokenList.innerHTML = '';
+            tokenTableBody.innerHTML = ''; // Clear previous entries
 
-            tokens.forEach(token => {
-                const colDiv = document.createElement('div');
-                colDiv.className = 'col'; // Bootstrap column for card grid
-                const tokenItem = document.createElement('div');
-                tokenItem.className = 'card h-100'; // h-100 to make cards same height
-                tokenItem.innerHTML = `
-                    <div class="card-body">
-                        <h3 class="card-title">${token.name} / SOL</h3>
-                        <div class="data-value">$${token.current_price.toFixed(2)}</div>
-                        <div class="change ${token.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">
-                            ${token.price_change_percentage_24h}%
-                        </div>
-                        <p class="card-text">Volume: $${token.total_volume.toLocaleString()}</p>
-                        <p class="card-text">Liquidity: $${token.market_cap.toLocaleString()}</p>
-                    </div>
+            if (tokens.length === 0) {
+                tokenTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">Không tìm thấy token phù hợp.</td></tr>';
+                return;
+            }
+
+            tokens.forEach((token, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('reveal-item-table'); // Class for table row specific reveal
+                const change24hClass = token.change24h >= 0 ? 'positive' : 'negative';
+
+                row.innerHTML = `
+                    <td>
+                        <span class="rank">#${index + 1}</span>
+                        ${token.image ? `<img src="${token.image}" alt="${token.name} logo" class="token-logo">` : ''}
+                        <span class="token-name">${token.name}</span>
+                        <span class="token-symbol">(${token.symbol})</span>
+                    </td>
+                    <td>$${token.price.toFixed(5)}</td>
+                    <td>$${token.volume24h.toLocaleString()}</td>
+                    <td class="${change24hClass}">${token.change24h.toFixed(2)}%</td>
+                    <td>$${token.marketCap.toLocaleString()}</td>
                 `;
-                colDiv.appendChild(tokenItem);
-                tokenList.appendChild(colDiv);
+                // Thêm sự kiện click vào mỗi hàng
+                row.addEventListener('click', () => {
+                    // Chuyển hướng đến trang chart.html với tokenA là symbol của token này, và tokenB là 'usd'
+                    window.location.href = `/chart/${token.symbol.toLowerCase()}/usd`;
+                });
+
+                tokenTableBody.appendChild(row);
+            });
+
+            // Apply ScrollReveal to newly added table rows
+            ScrollReveal().reveal('.reveal-item-table', {
+                delay: 0, // No extra delay for rows to appear quickly
+                distance: '20px',
+                origin: 'bottom',
+                interval: 50, // Stagger effect for rows
+                easing: 'ease-out',
+                mobile: false
             });
         }
 
-        // Event listener for opening the chart modal
-        // This assumes you click on a token card to open the chart.
-        // You'll need to add a click listener to your dynamically created token cards
-        // and trigger chartModal.show() with relevant data.
-        // For demonstration, here's a placeholder if you had a button:
-        // document.getElementById('open-chart-button').addEventListener('click', () => {
-        //     chartModal.show();
-        //     // Logic to load chart data here
-        // });
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredTokens = allTokens.filter(token =>
+                token.name.toLowerCase().includes(searchTerm) ||
+                token.symbol.toLowerCase().includes(searchTerm)
+            );
+            updateTokenList(filteredTokens);
+        });
 
+        // Initial fetch when the page loads
         fetchTokenData();
+
+        // Fetch data every 60 seconds to keep it updated (be mindful of CoinGecko API rate limits)
         setInterval(fetchTokenData, 60000);
     });
 </script>
+<style>
+    /* Sử dụng các biến màu từ style.css và chart.css */
+    body {
+        background-color: var(--dex-bg);
+        color: var(--dex-text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .page-content {
+        background-color: transparent;
+        /* Main content background is handled by sections */
+        padding: 20px;
+        /* Adjust padding for overall content area */
+        /* No direct box-shadow on page-content as dashboard-section will have it */
+    }
+
+    .dashboard-section {
+        background-color: var(--dex-panel-bg);
+        padding: 30px;
+        border-radius: 12px;
+        /* Tăng border-radius cho vẻ hiện đại */
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        /* Bóng đổ mạnh hơn */
+        margin-bottom: 25px;
+        border: 1px solid var(--dex-border);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Thêm transition cho hover */
+    }
+
+    .dashboard-section:hover {
+        transform: translateY(-8px);
+        /* Nhấc nhẹ lên khi hover */
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        /* Bóng đổ sâu hơn khi hover */
+    }
+
+    h2.section-title {
+        color: var(--dex-accent);
+        /* Màu xanh chủ đạo */
+        font-size: 2.2em;
+        /* Kích thước lớn hơn cho tiêu đề chính */
+        font-weight: 700;
+        margin-bottom: 25px;
+        border-bottom: 2px solid var(--dex-border);
+        /* Viền đậm hơn */
+        padding-bottom: 15px;
+        text-align: center;
+        /* Căn giữa tiêu đề */
+    }
+
+    .disclaimer-coingecko {
+        background-color: var(--dex-hover-bg);
+        /* Nền nhẹ hơn cho disclaimer */
+        border-left: 5px solid var(--dex-accent);
+        /* Border màu accent */
+        padding: 18px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        font-size: 1em;
+        color: var(--dex-text-secondary);
+        display: flex;
+        /* Dùng flexbox để căn icon */
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-control.form-control-lg {
+        background-color: var(--dex-bg);
+        /* Nền input tối hơn */
+        color: var(--dex-text-primary);
+        border: 1px solid var(--dex-border);
+        border-radius: 8px;
+        /* Bo tròn input */
+        padding: 12px 18px;
+        /* Padding lớn hơn */
+        font-size: 1.1em;
+    }
+
+    .form-control.form-control-lg::placeholder {
+        color: var(--dex-text-secondary);
+    }
+
+    .search-dropdown {
+        background-color: var(--dex-panel-bg);
+        border: 1px solid var(--dex-border);
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-dropdown-item {
+        color: var(--dex-text-primary);
+    }
+
+    .search-dropdown-item:hover {
+        background-color: var(--dex-hover-bg);
+    }
+
+    .token-table {
+        border-spacing: 0 10px;
+        /* Tăng khoảng cách giữa các hàng */
+        margin-top: 30px;
+    }
+
+    .token-table th,
+    .token-table td {
+        padding: 15px 20px;
+        /* Tăng padding cho cell */
+        background-color: var(--dex-panel-bg);
+        /* Nền cell */
+        color: var(--dex-text-primary);
+        border-radius: 8px;
+        /* Bo tròn góc cell */
+        vertical-align: middle;
+        /* Căn giữa nội dung theo chiều dọc */
+    }
+
+    .token-table th {
+        background-color: var(--dex-bg);
+        /* Nền header tối hơn */
+        color: var(--dex-text-secondary);
+        font-weight: 600;
+        font-size: 1em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-radius: 8px;
+        /* Bo tròn góc header */
+    }
+
+    /* Đảm bảo các hàng hover trông đẹp */
+    .token-table tbody tr {
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        /* Hiển thị con trỏ là pointer để gợi ý có thể click */
+    }
+
+    .token-table tbody tr:hover {
+        background-color: var(--dex-hover-bg);
+        /* Nền hover */
+        transform: scale(1.01);
+        /* Hiệu ứng phóng to nhẹ */
+    }
+
+    .rank {
+        font-weight: bold;
+        margin-right: 12px;
+        color: var(--dex-text-secondary);
+        font-size: 0.9em;
+    }
+
+    .token-logo {
+        width: 32px;
+        /* Kích thước logo lớn hơn */
+        height: 32px;
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        /* Bóng đổ nhẹ cho logo */
+    }
+
+    .token-name {
+        font-weight: 600;
+        color: var(--dex-text-primary);
+        font-size: 1.1em;
+    }
+
+    .token-symbol {
+        color: var(--dex-text-secondary);
+        font-size: 0.9em;
+        margin-left: 8px;
+    }
+
+    .positive {
+        color: var(--dex-success);
+        font-weight: 600;
+    }
+
+    .negative {
+        color: var(--dex-danger);
+        font-weight: 600;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-secondary {
+        color: var(--dex-text-secondary) !important;
+    }
+
+    .text-danger {
+        color: var(--dex-danger) !important;
+    }
+
+    /* Modal Styling - Đảm bảo nhất quán với theme */
+    .modal-content {
+        background-color: var(--dex-panel-bg);
+        color: var(--dex-text-primary);
+        border: 1px solid var(--dex-border);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--dex-border);
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        color: var(--dex-accent);
+        font-weight: 700;
+        font-size: 1.8em;
+    }
+
+    .modal-body {
+        background-color: var(--dex-bg);
+        /* Nền modal body tối hơn */
+        padding: 2rem;
+        border-radius: 0 0 12px 12px;
+        /* Bo tròn góc dưới */
+    }
+
+    .btn-close {
+        /* Filter invert to make it white/light on dark background */
+        filter: invert(var(--dex-filter-invert, 0));
+        /* Sử dụng biến CSS nếu có */
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Responsive adjustments for table on smaller screens */
+    @media (max-width: 768px) {
+
+        .token-table th,
+        .token-table td {
+            padding: 10px 12px;
+            font-size: 0.9em;
+        }
+
+        .token-logo {
+            width: 28px;
+            height: 28px;
+            margin-right: 8px;
+        }
+
+        .rank {
+            margin-right: 5px;
+        }
+
+        .token-name {
+            font-size: 1em;
+        }
+
+        .token-symbol {
+            font-size: 0.8em;
+            margin-left: 4px;
+        }
+
+        .dashboard-section {
+            padding: 20px;
+        }
+
+        h2.section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .disclaimer-coingecko {
+            padding: 12px;
+            font-size: 0.85em;
+        }
+
+        .form-control.form-control-lg {
+            padding: 10px 15px;
+            font-size: 1em;
+        }
+    }
+</style>
 {% endblock %}
