@@ -30,47 +30,30 @@ def save_rsi_cache(cache):
 
 @bp.route("/rsi")
 def get_rsi(period = 14):
-    try:
-        tokens = request.args.get("tokens", "BTC/USDC")
-        interval = int(request.args.get("interval", 60))
+    tokens = request.args.get("tokens", "BTC/USDC")
+    interval = int(request.args.get("interval", 60))
 
-        rsi_cache = load_rsi_cache()
-        results = {}
+    rsi_cache = load_rsi_cache()
+    results = {}
 
-        for pair in tokens.split(","):
-            try:
-                update_price_history(pair, interval)
-                key = f"{pair}_{interval}"
-                prices = [p for _, p in price_cache.get(key, [])]
+    for pair in tokens.split(","):
+        update_price_history(pair, interval)
+        key = f"{pair}_{interval}"
+        prices = [p for _, p in price_cache.get(key, [])]
 
-                if len(prices) >= period + 1:
-                    rsi_value = compute_rsi(prices)
+        if len(prices) >= period + 1:
+            rsi_value = compute_rsi(prices)
 
-                    # Thêm RSI mới vào cache mảng
-                    if key not in rsi_cache:
-                        rsi_cache[key] = []
-                    rsi_cache[key].append(rsi_value)
-                    # Cắt bớt nếu dài quá
-                    rsi_cache[key] = rsi_cache[key][-100:]
+            # Thêm RSI mới vào cache mảng
+            if key not in rsi_cache:
+                rsi_cache[key] = []
+            rsi_cache[key].append(rsi_value)
+            # Cắt bớt nếu dài quá
+            rsi_cache[key] = rsi_cache[key][-100:]
 
-                    results[pair] = {
-                        f"rsi_{interval}s": rsi_cache[key]
-                    }
-                else:
-                    results[pair] = {
-                        f"rsi_{interval}s": [],
-                        "error": "Not enough data points"
-                    }
-            except Exception as e:
-                print(f"Error processing pair {pair}: {e}")
-                results[pair] = {
-                    f"rsi_{interval}s": [],
-                    "error": str(e)
-                }
+            results[pair] = {
+                f"rsi_{interval}s": rsi_cache[key]
+            }
 
-        save_rsi_cache(rsi_cache)
-        return jsonify(results)
-    
-    except Exception as e:
-        print(f"Error in get_rsi: {e}")
-        return jsonify({"error": str(e)}), 500
+            save_rsi_cache(rsi_cache)
+    return jsonify(results)
