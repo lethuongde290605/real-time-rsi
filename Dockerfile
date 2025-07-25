@@ -7,7 +7,6 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8080
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -30,5 +29,5 @@ RUN mkdir -p data
 # Expose port
 EXPOSE 8080
 
-# Use gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "120", "run:app"] 
+# Use gunicorn for production with Google Cloud Run optimized settings
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --preload --access-logfile - --error-logfile - run:app 

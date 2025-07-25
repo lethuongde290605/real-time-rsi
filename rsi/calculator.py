@@ -1,5 +1,3 @@
-import pandas as pd
-
 def compute_rsi(prices, period=14):
     if len(prices) < period:
         return None  # Không đủ dữ liệu
