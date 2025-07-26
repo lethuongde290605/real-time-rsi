@@ -1,33 +1,25 @@
-# Use official Python runtime as base image
+# Sử dụng Python 3.10 image gọn nhẹ
 FROM python:3.10-slim
 
-# Set working directory
+# Đặt thư mục làm việc
 WORKDIR /app
 
-# Set environment variables
+# Không tạo file .pyc
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Cài các package hệ thống nếu cần (tùy yêu cầu của app)
+RUN apt-get update && apt-get install -y gcc && apt-get clean
 
-# Copy requirements first for better caching
+# Cài requirements
 COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Copy project files
+# Copy toàn bộ mã nguồn vào container
 COPY . .
 
-# Create data directory if it doesn't exist
-RUN mkdir -p data
-
-# Expose port
+# Cloud Run mặc định truyền PORT=8080
 EXPOSE 8080
 
-# Use gunicorn for production with Google Cloud Run optimized settings
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --preload --access-logfile - --error-logfile - run:app 
+# Chạy ứng dụng bằng gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "120", "run:app"]
