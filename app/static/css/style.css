@@ -102,7 +102,7 @@ body {
     position: absolute;
     top: 15px;
     /* Position relative to sidebar */
-    left: calc(var(--sidebar-width) - 20px);
+    left: calc(var(--sidebar-width) - 27px);
     /* Adjusted for expanded state */
     background: none;
     border: none;
@@ -112,7 +112,7 @@ body {
     z-index: 1001;
     transition: left 0.3s ease-in-out, color 0.2s ease;
     /* Smooth transition for position and color */
-    padding: 5px;
+    padding: 0px;
     border-radius: 5px;
 }
 
@@ -564,7 +564,7 @@ body.sidebar-collapsed .content-container {
     }
 
     body.sidebar-collapsed .sidebar-toggle {
-        left: calc(var(--sidebar-collapsed-width) - 20px);
+        left: calc(var(--sidebar-collapsed-width) - 27px);
         /* Adjust for collapsed state */
     }
 
@@ -614,12 +614,12 @@ body.sidebar-collapsed .content-container {
     }
 
     .sidebar-toggle {
-        left: calc(var(--sidebar-width) - 20px);
+        left: calc(var(--sidebar-width) - 35px);
         /* Default position for desktop (sidebar expanded) */
     }
 
     .sidebar.collapsed .sidebar-toggle {
-        left: calc(var(--sidebar-collapsed-width) - 20px);
+        left: calc(var(--sidebar-collapsed-width) - 35px);
     }
 
     .content-container {
