@@ -667,3 +667,23 @@ button:hover i.far,
 button:hover i.fab {
     color: var(--dex-accent);
 }
+@media (max-width: 992px) {
+    .sidebar {
+        /* Ẩn sidebar khỏi màn hình theo mặc định trên mobile */
+        left: calc(-1 * var(--sidebar-width));
+    }
+
+    /* Hiển thị sidebar khi không ở trạng thái collapsed (đã toggle) */
+    .sidebar:not(.collapsed) {
+        left: 0;
+    }
+
+    .sidebar-toggle {
+        left: 15px;
+        /* Điều chỉnh vị trí của nút toggle trên mobile */
+    }
+
+    body.sidebar-collapsed .sidebar-toggle {
+        left: calc(var(--sidebar-collapsed-width) - 20px);
+    }
+}   
