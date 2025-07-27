@@ -1,37 +1,27 @@
-import requests
 import time
 
-price_cache = {}
+price_cache = {}  # { "BTC/USDC_60": [(timestamp, price), ...] }
 
-def get_price_pair_dexscreener(pair_symbol):
-    # Ví dụ pair_symbol = "SOL/USDC"
-    url = f"https://api.dexscreener.com/latest/dex/search/?q={pair_symbol}"
+def handle_price_update(data):
+    token = data.get("pair").upper()
+    price = float(data.get("priceUsd"))
+    current_time = time.time()  # Timestamp chính xác
 
-    try:
-        response = requests.get(url)
-        data = response.json()
+    for interval in [1, 5, 30, 60]:  # Các khung 1s, 5s, 30s, 60s
+        key = f"{token}_{interval}"
+        if key not in price_cache:
+            price_cache[key] = []
 
-        if "pairs" in data and len(data["pairs"]) > 0:
-            first_pair = data["pairs"][0]
-            price = float(first_pair["priceUsd"])  # Giá của base theo USD
-            return price
+        # Tính thời điểm bắt đầu của khung hiện tại (ví dụ: khung 5s sẽ có các mốc 0, 5, 10,... giây)
+        interval_start = int(current_time) // interval * interval
+
+        # Chỉ lưu giá CUỐI CÙNG của mỗi khung
+        if not price_cache[key] or interval_start > price_cache[key][-1][0]:
+            price_cache[key].append((interval_start, price))
         else:
-            print(f"[⚠️] Không tìm thấy dữ liệu cho {pair_symbol}")
-            return None
+            # Cập nhật giá cuối cùng nếu cùng khung thời gian
+            price_cache[key][-1] = (interval_start, price)
 
-    except Exception as e:
-        print(f"Lỗi khi lấy giá cho {pair_symbol}: {e}")
-        return None
-
-def update_price_history(pair_symbol, interval_seconds):
-    now = int(time.time())
-    key = f"{pair_symbol}_{interval_seconds}"
-
-    if key not in price_cache:
-        price_cache[key] = []
-
-    price = get_price_pair_dexscreener(pair_symbol)
-    
-    if price:
-        price_cache[key].append((now, price))
-        price_cache[key] = price_cache[key][-100:]  # Chỉ giữ 100 điểm gần nhất
+        # Giới hạn bộ nhớ
+        if len(price_cache[key]) > 200:
+            price_cache[key] = price_cache[key][-200:]
