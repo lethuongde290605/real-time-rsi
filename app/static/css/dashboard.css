@@ -1,0 +1,203 @@
+/* dashboard.css - Custom styles for dashboard page */
+body {
+    background-color: var(--dex-bg);
+    color: var(--dex-text-primary);
+    font-family: 'Inter', sans-serif;
+}
+.page-content {
+    background-color: transparent;
+    padding: 20px;
+}
+.dashboard-section {
+    background-color: var(--dex-panel-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    margin-bottom: 25px;
+    border: 1px solid var(--dex-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.dashboard-section:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+h2.section-title {
+    color: var(--dex-accent);
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--dex-border);
+    padding-bottom: 15px;
+    text-align: center;
+}
+.disclaimer-coingecko {
+    background-color: var(--dex-hover-bg);
+    border-left: 5px solid var(--dex-accent);
+    padding: 18px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    font-size: 1em;
+    color: var(--dex-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.form-control.form-control-lg {
+    background-color: var(--dex-bg);
+    color: var(--dex-text-primary);
+    border: 1px solid var(--dex-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 1.1em;
+}
+.form-control.form-control-lg::placeholder {
+    color: var(--dex-text-secondary);
+}
+.search-dropdown {
+    background-color: var(--dex-panel-bg);
+    border: 1px solid var(--dex-border);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.search-dropdown-item {
+    color: var(--dex-text-primary);
+}
+.search-dropdown-item:hover {
+    background-color: var(--dex-hover-bg);
+}
+.token-table {
+    border-spacing: 0 10px;
+    margin-top: 30px;
+}
+.token-table th,
+.token-table td {
+    padding: 15px 20px;
+    background-color: var(--dex-panel-bg);
+    color: var(--dex-text-primary);
+    border-radius: 8px;
+    vertical-align: middle;
+}
+.token-table th {
+    background-color: var(--dex-bg);
+    color: var(--dex-text-secondary);
+    font-weight: 600;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+}
+.token-table tbody tr {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.token-table tbody tr:hover {
+    background-color: var(--dex-hover-bg);
+    transform: scale(1.01);
+}
+.rank {
+    font-weight: bold;
+    margin-right: 12px;
+    color: var(--dex-text-secondary);
+    font-size: 0.9em;
+}
+.token-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.token-name {
+    font-weight: 600;
+    color: var(--dex-text-primary);
+    font-size: 1.1em;
+}
+.token-symbol {
+    color: var(--dex-text-secondary);
+    font-size: 0.9em;
+    margin-left: 8px;
+}
+.positive {
+    color: var(--dex-success);
+    font-weight: 600;
+}
+.negative {
+    color: var(--dex-danger);
+    font-weight: 600;
+}
+.text-center {
+    text-align: center;
+}
+.text-secondary {
+    color: var(--dex-text-secondary) !important;
+}
+.text-danger {
+    color: var(--dex-danger) !important;
+}
+.modal-content {
+    background-color: var(--dex-panel-bg);
+    color: var(--dex-text-primary);
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.modal-header {
+    border-bottom: 1px solid var(--dex-border);
+    padding: 1.5rem;
+}
+.modal-title {
+    color: var(--dex-accent);
+    font-weight: 700;
+    font-size: 1.8em;
+}
+.modal-body {
+    background-color: var(--dex-bg);
+    padding: 2rem;
+    border-radius: 0 0 12px 12px;
+}
+.btn-close {
+    filter: invert(var(--dex-filter-invert, 0));
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.btn-close:hover {
+    opacity: 1;
+}
+@media (max-width: 768px) {
+    .token-table th,
+    .token-table td {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    .token-logo {
+        width: 28px;
+        height: 28px;
+        margin-right: 8px;
+    }
+    .rank {
+        margin-right: 5px;
+    }
+    .token-name {
+        font-size: 1em;
+    }
+    .token-symbol {
+        font-size: 0.8em;
+        margin-left: 4px;
+    }
+    .dashboard-section {
+        padding: 20px;
+    }
+    h2.section-title {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    .disclaimer-coingecko {
+        padding: 12px;
+        font-size: 0.85em;
+    }
+    .form-control.form-control-lg {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+}
