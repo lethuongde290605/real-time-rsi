@@ -687,3 +687,13 @@ button:hover i.fab {
         left: calc(var(--sidebar-collapsed-width) - 20px);
     }
 }   
+.table-responsive {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.token-table {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
