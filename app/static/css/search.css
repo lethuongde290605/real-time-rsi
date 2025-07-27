@@ -1,0 +1,135 @@
+/* ✅ search.css - dành riêng cho modal tìm kiếm token */
+
+#search-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1050;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  overflow-y: auto;
+}
+
+/* Ẩn modal */
+#search-modal.hidden {
+  display: none !important;
+}
+
+/* Hiện modal */
+#search-modal.show {
+  display: flex !important;
+}
+
+#search-modal .modal-container {
+  background-color: #1c1c1e;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+  max-width: 800px;
+  width: 100%;
+}
+
+#search-modal input.form-control {
+  background-color: #2a2a2c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+#search-modal input.form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #6c5ce7;
+}
+
+#searchResults > div {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #333;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+#searchResults > div:hover {
+  background-color: #2e2e2e;
+  border-color: #555;
+  transform: scale(1.01);
+}
+
+.token-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.token-info img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.token-stats {
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.text-green {
+  color: #4cd964;
+}
+
+.text-red {
+  color: #ff3b30;
+}
+
+.btn-watchlist {
+  background: transparent;
+  border: 1px solid #f1c40f;
+  color: #f1c40f;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-watchlist:hover,
+.btn-watchlist.saved {
+  background: #f1c40f;
+  color: black;
+  font-weight: bold;
+}
+
+.badge-chain {
+  background: #6c5ce7;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+
+#searchResults::-webkit-scrollbar {
+  width: 6px;
+}
+
+#searchResults::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 3px;
+}
+
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+  border-width: 3px;
+}
+
+.btn-close-white {
+  filter: invert(1);
+}
