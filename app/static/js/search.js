@@ -9,29 +9,36 @@ const closeBtn = document.getElementById("closeSearchBtn");
 const clearBtn = document.getElementById("clearSearch");
 const spinner = document.getElementById("loadingSpinner");
 
-// ✅ Mở modal khi click vào nút tìm kiếm
-openBtn.onclick = (e) => {
-  e.preventDefault();
-  modal.classList.remove("hidden");
-  modal.classList.add("show");
-  input.value = "";
-  resultBox.innerHTML = "";
-  input.focus();
-};
+// ✅ THAY ĐỔI: Chọn tất cả các nút trigger bằng class
+const openTriggers = document.querySelectorAll(".open-search-modal-trigger");
+
+// ✅ THAY ĐỔI: Mở modal khi click vào bất kỳ nút trigger nào
+openTriggers.forEach(trigger => {
+  trigger.onclick = (e) => {
+    e.preventDefault(); // Ngăn reload
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
+    input.value = "";
+    resultBox.innerHTML = "";
+    input.focus();
+  };
+});
+
 
 // ✅ Đóng modal
 closeBtn.onclick = () => {
   modal.classList.remove("show");
   modal.classList.add("hidden");
+  location.reload();
 };
 
-// ✅ Clear input
+// ✅ Clear ô input
 clearBtn.onclick = () => {
   input.value = "";
   input.dispatchEvent(new Event("input"));
 };
 
-// ✅ Sự kiện nhập để tìm kiếm
+// ✅ Sự kiện tìm kiếm khi người dùng nhập
 input.addEventListener("input", () => {
   clearTimeout(timeout);
   const query = input.value.trim();
@@ -58,6 +65,7 @@ input.addEventListener("input", () => {
       });
   }, 400);
 });
+
 
 // ✅ Hiển thị kết quả tìm kiếm
 function renderSearchResults(pairs) {
@@ -134,6 +142,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     modal.classList.remove("show");
     modal.classList.add("hidden");
+    location.reload(); // ✅ Reload trang khi click ngoài modal
   }
 });
 
@@ -141,5 +150,6 @@ modal.addEventListener("click", (e) => {
   if (e.target.id === "search-modal") {
     modal.classList.remove("show");
     modal.classList.add("hidden");
+    location.reload(); // ✅ Reload trang khi click ngoài modal
   }
 });
