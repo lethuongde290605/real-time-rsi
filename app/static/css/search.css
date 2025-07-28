@@ -11,12 +11,10 @@
   overflow-y: auto;
 }
 
-/* Ẩn modal */
 #search-modal.hidden {
   display: none !important;
 }
 
-/* Hiện modal */
 #search-modal.show {
   display: flex !important;
 }
@@ -35,7 +33,10 @@
   background-color: #2a2a2c;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
+  padding-left: 2.5rem;
+  height: 42px;
+  position: relative;
 }
 
 #search-modal input.form-control:focus {
@@ -43,60 +44,106 @@
   box-shadow: 0 0 0 2px #6c5ce7;
 }
 
+#search-modal .modal-container .form-group {
+  position: relative;
+}
+
+#search-modal .form-group .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #aaa;
+  font-size: 1rem;
+}
+
 #searchResults > div {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 12px 16px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
   border: 1px solid #333;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
 
 #searchResults > div:hover {
-  background-color: #2e2e2e;
-  border-color: #555;
+  background-color: #2a2a2e;
+  border-color: #6c5ce7;
   transform: scale(1.01);
 }
 
 .token-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex: 1;
 }
 
 .token-info img {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
+  background-color: #444;
+}
+
+.token-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.token-meta .pair-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.token-meta .pair-address {
+  font-size: 0.75rem;
+  color: #888;
 }
 
 .token-stats {
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 120px;
   font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.3;
+  flex-shrink: 0;
 }
 
-.text-green {
-  color: #4cd964;
+.token-stats .price {
+  font-weight: 600;
+  color: #00e676;
+  font-size: 0.95rem;
 }
 
-.text-red {
-  color: #ff3b30;
+.token-stats .volume {
+  font-size: 0.75rem;
+  color: #aaa;
 }
 
 .btn-watchlist {
   background: transparent;
   border: 1px solid #f1c40f;
   color: #f1c40f;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: 0.2s;
+  flex-shrink: 0;
 }
 
 .btn-watchlist:hover,

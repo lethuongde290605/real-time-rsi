@@ -48,8 +48,8 @@ input.addEventListener("input", () => {
 
   timeout = setTimeout(() => {
     fetch(`https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         renderSearchResults(data.pairs || []);
       })
       .catch(() => {
@@ -68,31 +68,35 @@ function renderSearchResults(pairs) {
     return;
   }
 
-  resultBox.innerHTML = pairs.slice(0, 10).map(pair => {
+  resultBox.innerHTML = pairs.slice(0, 10).map((pair) => {
     const base = pair.baseToken || {};
     const quote = pair.quoteToken || {};
-    const price = parseFloat(pair.priceUsd).toFixed(4);
-    const vol = parseFloat(pair.volume?.h24 || 0).toLocaleString();
+    const price = parseFloat(pair.priceUsd || 0).toFixed(4);
+    const vol = parseFloat(pair.volume?.h24 || 0).toLocaleString('en-US');
     const chain = pair.chainId || pair.chain || "-";
     const address = pair.pairAddress || pair.url;
     const routeUrl = `/chart/${base.symbol}/${quote.symbol}`;
     const isSaved = getWatchlist().includes(address);
 
     return `
-      <div onclick="window.location='${routeUrl}'">
+      <div class="search-result-card" onclick="window.location='${routeUrl}'">
         <div class="token-info">
-          <img src="${base.icon || '/static/img/default.png'}">
-          <div>
-            <div class="fw-bold">${base.symbol}/${quote.symbol} <span class='badge-chain'>${chain}</span></div>
-            <div class="token-meta">${shorten(address)}</div>
+          <img src="${base.icon || '/static/img/default.png'}" onerror="this.src='/static/img/default.png'" />
+          <div class="token-meta">
+            <div class="pair-name">${base.symbol}/${quote.symbol}
+              <span class="badge-chain">${chain}</span>
+            </div>
+            <div class="token-address">${shorten(address)}</div>
           </div>
         </div>
         <div class="token-stats">
-          <div>$${price}</div>
-          <div class="text-muted">Vol 24h: $${vol}</div>
+          <div class="price">$${price}</div>
+          <div class="volume">Vol 24h: $${vol}</div>
         </div>
-        <div>
-          <button class="btn-watchlist ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleWatchlist('${address}')">⭐</button>
+        <div class="token-actions">
+          <button class="btn-watchlist ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleWatchlist('${address}')">
+            ⭐
+          </button>
         </div>
       </div>
     `;
@@ -113,7 +117,7 @@ function getWatchlist() {
 function toggleWatchlist(address) {
   let list = getWatchlist();
   if (list.includes(address)) {
-    list = list.filter(x => x !== address);
+    list = list.filter((x) => x !== address);
   } else {
     list.push(address);
   }
