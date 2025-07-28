@@ -1,5 +1,3 @@
-// ✅ search.js (kết nối Dexscreener API + lưu Watchlist + mở Modal từ Sidebar)
-
 let timeout = null;
 
 // Lấy các phần tử trong DOM
@@ -11,9 +9,9 @@ const closeBtn = document.getElementById("closeSearchBtn");
 const clearBtn = document.getElementById("clearSearch");
 const spinner = document.getElementById("loadingSpinner");
 
-// ✅ Mở modal khi click vào nút trên sidebar
+// ✅ Mở modal khi click vào nút tìm kiếm
 openBtn.onclick = (e) => {
-  e.preventDefault(); // Ngăn reload
+  e.preventDefault();
   modal.classList.remove("hidden");
   modal.classList.add("show");
   input.value = "";
@@ -27,13 +25,13 @@ closeBtn.onclick = () => {
   modal.classList.add("hidden");
 };
 
-// ✅ Clear ô input
+// ✅ Clear input
 clearBtn.onclick = () => {
   input.value = "";
   input.dispatchEvent(new Event("input"));
 };
 
-// ✅ Sự kiện tìm kiếm khi người dùng nhập
+// ✅ Sự kiện nhập để tìm kiếm
 input.addEventListener("input", () => {
   clearTimeout(timeout);
   const query = input.value.trim();
@@ -75,15 +73,18 @@ function renderSearchResults(pairs) {
     const vol = parseFloat(pair.volume?.h24 || 0).toLocaleString('en-US');
     const chain = pair.chainId || pair.chain || "-";
     const address = pair.pairAddress || pair.url;
-    const routeUrl = `/chart/${base.symbol}/${quote.symbol}`;
-    const isSaved = getWatchlist().includes(address);
+    const tokenA = base.symbol || "???";
+    const tokenB = quote.symbol || "???";
+    const pairKey = `${tokenA}/${tokenB}`;
+    const isSaved = getWatchlist().includes(pairKey);
+    const routeUrl = `/chart/${tokenA}/${tokenB}`;
 
     return `
       <div class="search-result-card" onclick="window.location='${routeUrl}'">
         <div class="token-info">
           <img src="${base.icon || '/static/img/default.png'}" onerror="this.src='/static/img/default.png'" />
           <div class="token-meta">
-            <div class="pair-name">${base.symbol}/${quote.symbol}
+            <div class="pair-name">${tokenA}/${tokenB}
               <span class="badge-chain">${chain}</span>
             </div>
             <div class="token-address">${shorten(address)}</div>
@@ -94,7 +95,7 @@ function renderSearchResults(pairs) {
           <div class="volume">Vol 24h: $${vol}</div>
         </div>
         <div class="token-actions">
-          <button class="btn-watchlist ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleWatchlist('${address}')">
+          <button class="btn-watchlist ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleWatchlist('${tokenA}', '${tokenB}')">
             ⭐
           </button>
         </div>
@@ -103,7 +104,7 @@ function renderSearchResults(pairs) {
   }).join('');
 }
 
-// ✅ Rút gọn địa chỉ
+// ✅ Rút gọn địa chỉ ví
 function shorten(addr) {
   return addr?.length > 10 ? addr.slice(0, 6) + "..." + addr.slice(-4) : addr;
 }
@@ -113,19 +114,22 @@ function getWatchlist() {
   return JSON.parse(localStorage.getItem("watchlist") || "[]");
 }
 
-// ✅ Thêm hoặc xóa địa chỉ khỏi Watchlist
-function toggleWatchlist(address) {
+// ✅ Thêm hoặc xóa khỏi Watchlist dựa theo tokenA/tokenB
+function toggleWatchlist(tokenA, tokenB) {
+  const pair = `${tokenA}/${tokenB}`;
   let list = getWatchlist();
-  if (list.includes(address)) {
-    list = list.filter((x) => x !== address);
+
+  if (list.includes(pair)) {
+    list = list.filter((x) => x !== pair);
   } else {
-    list.push(address);
+    list.push(pair);
   }
+
   localStorage.setItem("watchlist", JSON.stringify(list));
-  input.dispatchEvent(new Event("input"));
+  input.dispatchEvent(new Event("input")); // Re-render lại UI
 }
 
-// ✅ Đóng modal khi nhấn phím Escape hoặc click ra ngoài
+// ✅ Đóng modal khi nhấn ESC hoặc click ra ngoài vùng
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     modal.classList.remove("show");
