@@ -1,59 +1,45 @@
-from flask import Blueprint, request, jsonify, render_template
-import json, os
-from rsi.fetcher import update_price_history, price_cache
+# app/routes/rsi.py
+from flask import Blueprint, request, jsonify
+from rsi.fetcher import price_cache
 from rsi.calculator import compute_rsi
+from rsi.ws_client import subscribe_pair, unsubscribe_pair
 
 bp = Blueprint("rsi", __name__)
-rsi_cache_file = "data/rsi_cache.json"
 
-def load_rsi_cache():
-    if not os.path.exists(rsi_cache_file):
-        return {}
+def get_latest_price(pair):
+    for interval in [1, 5, 30, 60]:
+        key = f"{pair}_{interval}"
+        if key in price_cache and price_cache[key]:
+            return price_cache[key][-1][1]
+    return None
 
-    # Kiểm tra nếu file rỗng thì trả về dict rỗng luôn
-    if os.path.getsize(rsi_cache_file) == 0:
-        return {}
-
-    with open(rsi_cache_file, "r") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            # Nếu file hỏng → ghi đè lại file rỗng
-            print("⚠️ File rsi_cache.json bị lỗi, đang reset lại.")
-            return {}
-
-# Lưu cache RSI vào file
-def save_rsi_cache(cache):
-    os.makedirs(os.path.dirname(rsi_cache_file), exist_ok=True)
-    with open(rsi_cache_file, "w") as f:
-        json.dump(cache, f)
+@bp.route("/unsubscribe")
+def unsubscribe():
+    token = request.args.get("token")
+    unsubscribe_pair(token)
+    return jsonify({"status": "success"})
 
 @bp.route("/rsi")
-def get_rsi(period = 14):
+def get_rsi():
     tokens = request.args.get("tokens", "BTC/USDC")
     interval = int(request.args.get("interval", 60))
-
-    rsi_cache = load_rsi_cache()
+    subscribe_pair(tokens)
+    print(tokens)
+    
     results = {}
-
     for pair in tokens.split(","):
-        update_price_history(pair, interval)
+        pair = pair.strip().upper()
         key = f"{pair}_{interval}"
-        prices = [p for _, p in price_cache.get(key, [])]
+        
+        if key not in price_cache or len(price_cache[key]) < 15:  # Cần ít nhất 14 khung + 1 giá mới
+            continue
+            
+        # Lấy dữ liệu 14 khung gần nhất + giá hiện tại
+        price_data = price_cache[key][-15:]
+        rsi_val = compute_rsi(price_data)
+        
+        if rsi_val is not None:
+            results[pair] = {f"rsi_{interval}s": rsi_val}
 
-        if len(prices) >= period + 1:
-            rsi_value = compute_rsi(prices)
-
-            # Thêm RSI mới vào cache mảng
-            if key not in rsi_cache:
-                rsi_cache[key] = []
-            rsi_cache[key].append(rsi_value)
-            # Cắt bớt nếu dài quá
-            rsi_cache[key] = rsi_cache[key][-100:]
-
-            results[pair] = {
-                f"rsi_{interval}s": rsi_cache[key]
-            }
-
-            save_rsi_cache(rsi_cache)
+    print(results)
     return jsonify(results)

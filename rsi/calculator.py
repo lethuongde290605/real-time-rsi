@@ -1,21 +1,17 @@
-import pandas as pd
-
 def compute_rsi(prices, period=14):
-    if len(prices) < period:
-        return None  # Không đủ dữ liệu
+    """Tính RSI từ chuỗi giá đóng cửa các khung thời gian"""
+    if len(prices) < period + 1:
+        return None
 
-    deltas = [prices[i] - prices[i - 1] for i in range(1, len(prices))]
-    gains = [delta if delta > 0 else 0 for delta in deltas]
-    losses = [-delta if delta < 0 else 0 for delta in deltas]
+    # Lấy giá đóng cửa (bỏ qua timestamp)
+    closing_prices = [p[1] for p in prices] if isinstance(prices[0], (list, tuple)) else prices
 
-    avg_gain = sum(gains[:period]) / period
-    avg_loss = sum(losses[:period]) / period
+    # Tính toán RSI theo công thức gốc
+    deltas = [closing_prices[i] - closing_prices[i-1] for i in range(1, len(closing_prices))]
+    avg_gain = sum(max(0, d) for d in deltas[:period]) / period
+    avg_loss = sum(max(0, -d) for d in deltas[:period]) / period
 
     if avg_loss == 0:
-        return 100.0  # RSI max
-    if avg_gain == 0:
-        return 0.0    # RSI min
-
+        return 100.0
     rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-    return round(rsi, 2)
+    return round(100 - (100 / (1 + rs)), 2)
