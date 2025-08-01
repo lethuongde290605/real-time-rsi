@@ -66,6 +66,7 @@ def on_message(ws, message):
                     "pair": pair.upper(),
                     "priceUsd": price
                 }
+                
                 handle_price_update(payload)
     except Exception as e:
         print("❌ Lỗi tin nhắn WebSocket:", e)
