@@ -51,25 +51,34 @@ def unsubscribe_pair(pair):
 
 def on_message(ws, message):
     try:
-        if subscribed_pairs:
-            data = json.loads(message)
-            if "s" in data and "p" in data:  # Binance dùng 's' cho mã và 'p' cho giá
-                symbol = data["s"]  # Định dạng kiểu "BTCUSDC"
-                price = float(data["p"])
-            
-                # Tạo cặp giao dịch có dấu gạch chéo (BTC/USDC)
-                base = symbol[:-4] if symbol.endswith('USDC') else symbol[:-3]
-                quote = symbol[-4:] if symbol.endswith('USDC') else symbol[-3:]
-                pair = f"{base}/{quote}"
-            
-                payload = {
-                    "pair": pair.upper(),
-                    "priceUsd": price
-                }
-                
-                handle_price_update(payload)
+        data = json.loads(message)
+        symbol = data.get("s", "")
+        price = float(data.get("p", 0))
+
+        if not symbol or not price:
+            return
+
+        if len(symbol) < 6:
+            print(f"⚠️ Symbol quá ngắn: {symbol}")
+            return
+
+        if symbol.endswith("USDC"):
+            base = symbol[:-4]
+            quote = "USDC"
+        else:
+            base = symbol[:-3]
+            quote = symbol[-3:]
+
+        pair = f"{base}/{quote}"
+        payload = {
+            "pair": pair,
+            "priceUsd": price
+        }
+
+        handle_price_update(payload)
     except Exception as e:
-        print("❌ Lỗi tin nhắn WebSocket:", e)
+        print("❌ Lỗi tin nhắn WebSocket:", e, message)
+
 
 
 def on_error(ws, error):

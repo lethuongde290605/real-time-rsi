@@ -39,8 +39,6 @@ async function loadHistoryAndDraw(token, interval, chart) {
   }
 }
 
-
-
 // Tạo chart object riêng biệt
 function createEmptyRSIChart(token, interval) {
   const key = `${token}_${interval}`;
