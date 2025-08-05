@@ -17,7 +17,7 @@ def normalize_pair(pair):
 
 
 def subscribe_pair(pair):
-    norm = pair.replace("/", "").upper()  # BTC/USDC -> BTCUSDC
+    norm = pair
     with lock:
         if norm in subscribed_pairs:
             return
@@ -52,24 +52,9 @@ def unsubscribe_pair(pair):
 def on_message(ws, message):
     try:
         data = json.loads(message)
-        symbol = data.get("s", "")
+        pair = data.get("s", "")
         price = float(data.get("p", 0))
-
-        if not symbol or not price:
-            return
-
-        if len(symbol) < 6:
-            print(f"⚠️ Symbol quá ngắn: {symbol}")
-            return
-
-        if symbol.endswith("USDC"):
-            base = symbol[:-4]
-            quote = "USDC"
-        else:
-            base = symbol[:-3]
-            quote = symbol[-3:]
-
-        pair = f"{base}/{quote}"
+        
         payload = {
             "pair": pair,
             "priceUsd": price
