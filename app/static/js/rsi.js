@@ -1,11 +1,14 @@
 // app/static/js/rsi.js
 
 // Global
-const activeCharts = {};  // token_interval -> {chart, timerId}
+const activeCharts = {}; // token_interval -> {chart, timerId}
 
 // Lưu & khôi phục
 function saveChartsToStorage() {
-  localStorage.setItem("activeCharts", JSON.stringify(Object.keys(activeCharts)));
+  localStorage.setItem(
+    "activeCharts",
+    JSON.stringify(Object.keys(activeCharts))
+  );
 }
 
 async function restoreChartsFromStorage() {
@@ -16,7 +19,7 @@ async function restoreChartsFromStorage() {
 
   for (const key of keys) {
     const [token, interval] = key.split("_");
-    await addRSIChart(token, parseInt(interval));  // await để vẽ tuần tự
+    await addRSIChart(token, parseInt(interval)); // await để vẽ tuần tự
   }
 }
 
@@ -55,27 +58,29 @@ function createEmptyRSIChart(token, interval) {
   `;
   container.appendChild(chartDiv);
 
-  const ctx = document.getElementById(`canvas-${key}`).getContext('2d');
+  const ctx = document.getElementById(`canvas-${key}`).getContext("2d");
   const chart = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
       labels: [],
-      datasets: [{
-        label: 'RSI14',
-        data: [],
-        borderColor: getRandomColor(),
-        tension: 0.2
-      }]
+      datasets: [
+        {
+          label: "RSI14",
+          data: [],
+          borderColor: getRandomColor(),
+          tension: 0.2,
+        },
+      ],
     },
     options: {
       animation: false,
       scales: {
         y: {
           min: 0,
-          max: 100
-        }
-      }
-    }
+          max: 100,
+        },
+      },
+    },
   });
 
   return chart;
@@ -96,6 +101,7 @@ async function updateRSIChart(token, interval, chart) {
     // Thêm dữ liệu mới vào chart
     chart.data.labels.push(new Date().toLocaleTimeString());
     chart.data.datasets[0].data.push(rsiValue);
+    console.log(rsiValue);
 
     // Giới hạn hiển thị 100 điểm
     if (chart.data.datasets[0].data.length > 100) {
@@ -130,10 +136,9 @@ async function addRSIChart(token, interval = 60) {
   return chart;
 }
 
-
 // Hàm phụ trợ tạo màu ngẫu nhiên
 function getRandomColor() {
-  return `#${Math.floor(Math.random()*16777215).toString(16)}`;
+  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 }
 
 // Xóa chart
@@ -143,7 +148,7 @@ async function removeChart(key) {
 
   // Gọi API backend để hủy subscribe
   try {
-    const [token, interval] = key.split('_');
+    const [token, interval] = key.split("_");
     await fetch(`/unsubscribe?token=${token}`);
   } catch (err) {
     console.error("❌ Lỗi khi hủy subscribe:", err);

@@ -1,31 +1,53 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 <h2>Multi RSI Charts</h2>
 
 <form onsubmit="event.preventDefault(); handleAddChart();">
-  <input id="tokenInput" placeholder="Token Pair (e.g. BTC/USDC)">
-  <select id="intervalInput">
-    <option value="1">1s</option>
-    <option value="5">5s</option>
-    <option value="30">30s</option>
-    <option value="60" selected>1m</option>
-  </select>
-  <button type="submit">➕ Add RSI Chart</button>
+  <div class="flex gap-3">
+    <button
+      type="button"
+      onclick="openRSISearchModal()"
+      class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded"
+    >
+      🔍 Add RSI Chart
+    </button>
+    <select id="intervalInput" class="border px-2 py-1 rounded">
+      <option value="1">1s</option>
+      <option value="5">5s</option>
+      <option value="30">30s</option>
+      <option value="60" selected>1m</option>
+    </select>
+  </div>
 </form>
 
+<!-- Hidden input để nhận symbol từ modal -->
+<input type="hidden" id="tokenInput" />
+
+<!-- Container biểu đồ RSI -->
 <div id="rsiCharts"></div>
+
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/rsi.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search_for_rsi.js') }}"></script>
 
+<!-- Modal tìm kiếm -->
+{% include 'rsi-search-modal.html' %}
+
+<!-- Hàm xử lý thêm chart -->
 <script>
   function handleAddChart() {
-    const token = document.getElementById("tokenInput").value.trim();
+    const tokenInput = document.getElementById("tokenInput").value.trim();
     const interval = parseInt(document.getElementById("intervalInput").value);
-    if (!token) return alert("Nhập token!");
-    addRSIChart(token, interval);
+
+    if (!tokenInput.includes("/")) {
+      return alert("Vui lòng chọn token dạng A/B (VD: BTC/USDT)");
+    }
+
+    // chuẩn để truyền cho addRSIChart
+    addRSIChart(tokenInput, interval);
   }
 
-  // Khôi phục biểu đồ khi load trang
+  // Khôi phục biểu đồ đã lưu khi tải trang
   restoreChartsFromStorage();
 </script>
 {% endblock %}
