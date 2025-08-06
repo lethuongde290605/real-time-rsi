@@ -1,3 +1,5 @@
+# rsi\calculator.py
+
 def compute_rsi(prices, period=14):
     """Tính RSI từ chuỗi giá đóng cửa các khung thời gian"""
     if len(prices) < period + 1:

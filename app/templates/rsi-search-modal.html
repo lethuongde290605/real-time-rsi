@@ -1,0 +1,44 @@
+<!-- templates/rsi-search-modal.html -->
+<div id="rsi-search-modal" class="hidden">
+  <div class="modal-container">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-3">
+      <div class="position-relative flex-grow-1">
+        <span
+          class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+        >
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          id="rsiSearchInput"
+          type="text"
+          class="form-control ps-5 pe-5"
+          placeholder="Tìm token trên Binance..."
+        />
+        <button
+          id="rsiClearSearch"
+          class="position-absolute top-50 end-0 translate-middle-y me-3 btn btn-sm btn-link text-muted"
+        >
+          ✖
+        </button>
+      </div>
+      <button id="rsiCloseSearchBtn" class="btn btn-sm btn-outline-light ms-2">
+        Đóng
+      </button>
+    </div>
+
+    <!-- Spinner -->
+    <div id="rsiLoadingSpinner" class="text-center my-4 d-none">
+      <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Kết quả -->
+    <div
+      id="rsiSearchResults"
+      class="overflow-auto"
+      style="max-height: 400px"
+    ></div>
+  </div>
+</div>

@@ -1,27 +1,43 @@
-import time
+# rsi/fetcher.py
 
-price_cache = {}  # { "BTC/USDC_60": [(timestamp, price), ...] }
+import time
+from rsi.calculator import compute_rsi
+from rsi.storage import save_rsi_cache_to_file
+
+price_cache = {}     # { "BTC/USDC_60": [(timestamp, price), ...] }
+rsi_cache = {}       # { "BTC/USDC_60": [(timestamp, rsi), ...] }
 
 def handle_price_update(data):
     token = data.get("pair").upper()
     price = float(data.get("priceUsd"))
-    current_time = time.time()  # Timestamp chính xác
+    current_time = time.time()
 
-    for interval in [1, 5, 30, 60]:  # Các khung 1s, 5s, 30s, 60s
+    for interval in [1, 5, 30, 60]:
         key = f"{token}_{interval}"
-        if key not in price_cache:
-            price_cache[key] = []
-
-        # Tính thời điểm bắt đầu của khung hiện tại (ví dụ: khung 5s sẽ có các mốc 0, 5, 10,... giây)
         interval_start = int(current_time) // interval * interval
 
-        # Chỉ lưu giá CUỐI CÙNG của mỗi khung
+        # --- Cập nhật price_cache (giữ nguyên)
+        if key not in price_cache:
+            price_cache[key] = []
         if not price_cache[key] or interval_start > price_cache[key][-1][0]:
             price_cache[key].append((interval_start, price))
         else:
-            # Cập nhật giá cuối cùng nếu cùng khung thời gian
             price_cache[key][-1] = (interval_start, price)
 
-        # Giới hạn bộ nhớ
-        if len(price_cache[key]) > 200:
-            price_cache[key] = price_cache[key][-200:]
+        # --- Kiểm tra và lưu RSI (thêm điều kiện trùng lặp)
+        if len(price_cache[key]) >= 15:
+            rsi_val = compute_rsi(price_cache[key][-15:])
+            if rsi_val is not None:
+                if key not in rsi_cache:
+                    rsi_cache[key] = []
+
+                # Kiểm tra trùng lặp: timestamp VÀ giá trị RSI phải khác điểm cuối cùng
+                last_entry = rsi_cache[key][-1] if rsi_cache[key] else None
+                if not last_entry or (last_entry[0] != interval_start or last_entry[1] != rsi_val):
+                    rsi_cache[key].append((interval_start, rsi_val))
+                    
+                    # Giới hạn cache
+                    if len(rsi_cache[key]) > 100:
+                        rsi_cache[key] = rsi_cache[key][-100:]
+
+    save_rsi_cache_to_file(rsi_cache)  # Lưu file (nếu cần)

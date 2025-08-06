@@ -1,6 +1,6 @@
-/* ✅ search.css - dành riêng cho modal tìm kiếm token */
+/* ✅ search.css - dùng chung cho search-modal và rsi-search-modal */
 
-#search-modal {
+#search-modal, #rsi-search-modal {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.75);
@@ -11,15 +11,15 @@
   overflow-y: auto;
 }
 
-#search-modal.hidden {
+#search-modal.hidden, #rsi-search-modal.hidden {
   display: none !important;
 }
 
-#search-modal.show {
+#search-modal.show, #rsi-search-modal.show {
   display: flex !important;
 }
 
-#search-modal .modal-container {
+#search-modal .modal-container, #rsi-search-modal .modal-container {
   background-color: #1c1c1e;
   color: #fff;
   border-radius: 12px;
@@ -29,7 +29,8 @@
   width: 100%;
 }
 
-#search-modal input.form-control {
+#search-modal input.form-control,
+#rsi-search-modal input.form-control {
   background-color: #2a2a2c;
   color: white;
   border: none;
@@ -39,16 +40,19 @@
   position: relative;
 }
 
-#search-modal input.form-control:focus {
+#search-modal input.form-control:focus,
+#rsi-search-modal input.form-control:focus {
   outline: none;
   box-shadow: 0 0 0 2px #6c5ce7;
 }
 
-#search-modal .modal-container .form-group {
+#search-modal .modal-container .form-group,
+#rsi-search-modal .modal-container .form-group {
   position: relative;
 }
 
-#search-modal .form-group .search-icon {
+#search-modal .form-group .search-icon,
+#rsi-search-modal .form-group .search-icon {
   position: absolute;
   top: 50%;
   left: 12px;
@@ -57,7 +61,8 @@
   font-size: 1rem;
 }
 
-#searchResults > div {
+#searchResults > div,
+#rsiSearchResults > div {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -71,7 +76,8 @@
   cursor: pointer;
 }
 
-#searchResults > div:hover {
+#searchResults > div:hover,
+#rsiSearchResults > div:hover {
   background-color: #2a2a2e;
   border-color: #6c5ce7;
   transform: scale(1.01);
@@ -162,11 +168,13 @@
   margin-left: 6px;
 }
 
-#searchResults::-webkit-scrollbar {
+#searchResults::-webkit-scrollbar,
+#rsiSearchResults::-webkit-scrollbar {
   width: 6px;
 }
 
-#searchResults::-webkit-scrollbar-thumb {
+#searchResults::-webkit-scrollbar-thumb,
+#rsiSearchResults::-webkit-scrollbar-thumb {
   background-color: #444;
   border-radius: 3px;
 }
