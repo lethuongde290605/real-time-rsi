@@ -14,6 +14,7 @@ def compute_rsi(prices, period=14):
     avg_loss = sum(max(0, -d) for d in deltas[:period]) / period
 
     if avg_loss == 0:
-        return 100.0
+        return 100.0 if avg_gain != 0 else 50.0
+    
     rs = avg_gain / avg_loss
     return round(100 - (100 / (1 + rs)), 2)

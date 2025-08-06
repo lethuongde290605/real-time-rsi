@@ -4,8 +4,8 @@ import time
 from rsi.calculator import compute_rsi
 from rsi.storage import save_rsi_cache_to_file
 
-price_cache = {}     # { "BTC/USDC_60": [(timestamp, price), ...] }
-rsi_cache = {}       # { "BTC/USDC_60": [(timestamp, rsi), ...] }
+price_cache = {}     # { "BTCUSDC_60": [(timestamp, price), ...] }
+rsi_cache = {}       # { "BTCUSDC_60": [(timestamp, rsi), ...] }
 
 def handle_price_update(data):
     token = data.get("pair").upper()
@@ -16,7 +16,7 @@ def handle_price_update(data):
         key = f"{token}_{interval}"
         interval_start = int(current_time) // interval * interval
 
-        # --- Cập nhật price_cache (giữ nguyên)
+        # --- Cập nhật price_cache
         if key not in price_cache:
             price_cache[key] = []
         if not price_cache[key] or interval_start > price_cache[key][-1][0]:
@@ -24,7 +24,7 @@ def handle_price_update(data):
         else:
             price_cache[key][-1] = (interval_start, price)
 
-        # --- Kiểm tra và lưu RSI (thêm điều kiện trùng lặp)
+        # --- Kiểm tra và lưu RSI
         if len(price_cache[key]) >= 15:
             rsi_val = compute_rsi(price_cache[key][-15:])
             if rsi_val is not None:
