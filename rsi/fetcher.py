@@ -31,9 +31,14 @@ def handle_price_update(data):
                 if key not in rsi_cache:
                     rsi_cache[key] = []
 
-                # Kiểm tra trùng lặp: timestamp VÀ giá trị RSI phải khác điểm cuối cùng
-                last_entry = rsi_cache[key][-1] if rsi_cache[key] else None
-                if not last_entry or (last_entry[0] != interval_start or last_entry[1] != rsi_val):
+                # Ghi đè nếu đã có timestamp, append nếu chưa
+                found = False
+                for i, (ts, _) in enumerate(rsi_cache[key]):
+                    if ts == interval_start:
+                        rsi_cache[key][i] = (interval_start, rsi_val)
+                        found = True
+                        break
+                if not found:
                     rsi_cache[key].append((interval_start, rsi_val))
                     
                     # Giới hạn cache

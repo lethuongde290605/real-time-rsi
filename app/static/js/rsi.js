@@ -117,6 +117,7 @@ async function updateRSIChart(token, interval, chart) {
 
 // Hàm thêm chart mới
 async function addRSIChart(token, interval = 60) {
+  token = token.replace('/','');
   const key = `${token}_${interval}`;
   if (activeCharts[key]) return;
 
